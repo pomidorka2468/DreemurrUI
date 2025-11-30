@@ -1,0 +1,262 @@
+/* Base notebook layout */
+
+.notebook-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+/* Top tabs + token count */
+
+.nb-top-strip {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 2px 6px;
+}
+
+.nb-tabs {
+  display: inline-flex;
+  gap: 4px;
+  padding: 2px;
+  border-radius: 999px;
+  background: #fff3e3;
+  border: 1px solid #ead3b7;
+}
+
+.nb-tab {
+  border: none;
+  background: transparent;
+  padding: 4px 10px;
+  font-size: 0.78rem;
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+
+.nb-tab-active {
+  background: #fffaf3;
+  color: var(--text-main);
+  font-weight: 500;
+  box-shadow: 0 0 0 1px rgba(227, 139, 60, 0.28);
+}
+
+.nb-top-right {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.nb-token-count {
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: #fff;
+  border: 1px solid var(--input-border);
+}
+
+/* Subviews */
+
+.nb-subview {
+  display: none;
+  margin-bottom: 4px;
+}
+
+.nb-subview-active {
+  display: block;
+}
+
+/* Generate view */
+
+.nb-generate-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+}
+
+.nb-inline-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.nb-inline-label input {
+  width: 90px;
+  padding: 3px 6px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: #fff;
+  font-size: 0.8rem;
+}
+
+/* Save / load view */
+
+.nb-save-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.nb-save-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+/* Context & guide */
+
+.nb-style-label {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  display: inline-flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.nb-style-input {
+  width: min(420px, 100%);
+  padding: 4px 8px;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: #fff;
+  color: var(--text-main);
+  font-size: 0.85rem;
+}
+
+.nb-style-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(227, 139, 60, 0.55);
+}
+
+.nb-context-text {
+  margin-top: 4px;
+  width: 100%;
+  min-height: 90px;
+  max-height: 200px;
+  resize: vertical;
+  border-radius: 8px;
+  border: 1px solid var(--input-border);
+  background: #fff;
+  padding: 6px 8px;
+  font-size: 0.85rem;
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  line-height: 1.4;
+}
+
+/* Editor area */
+
+.notebook-editor-wrap {
+  flex: 1;
+  min-height: 0;
+  margin-top: 4px;
+  border-radius: 10px;
+  border: 1px solid var(--input-border);
+  background: #fffef9;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
+  padding: 8px;
+}
+
+.notebook-text {
+  width: 100%;
+  height: 100%;
+  resize: none;
+  border: none;
+  background: transparent;
+  color: var(--text-main);
+  font-family: "Georgia", "Times New Roman", serif;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  padding: 0;
+}
+
+.notebook-text:focus {
+  outline: none;
+}
+
+/* Top small buttons reused from chat */
+
+.nb-btn {
+  border-radius: var(--radius-pill);
+  border: 1px solid var(--input-border);
+  background: #fffaf3;
+  padding: 4px 10px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  color: var(--text-main);
+  transition: background 0.12s ease, border-color 0.12s ease,
+    transform 0.06s ease;
+}
+
+.nb-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft-strong);
+}
+
+.nb-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fffaf3;
+}
+
+.nb-btn-ghost {
+  background: transparent;
+}
+
+.nb-btn-small {
+  padding: 3px 8px;
+  font-size: 0.76rem;
+}
+
+/* Bottom round buttons */
+
+.nb-bottom-bar {
+  margin-top: 6px;
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.nb-round-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 16px;
+  border: 1px solid var(--input-border);
+  background: #fffaf3;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease,
+    transform 0.06s ease;
+}
+
+.nb-round-btn:hover {
+  background: var(--accent-soft);
+  border-color: var(--accent-soft-strong);
+}
+
+.nb-round-btn-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #fffaf3;
+}
+
+/* Responsive */
+
+@media (max-width: 640px) {
+  .nb-top-strip {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .nb-top-right {
+    align-self: flex-end;
+  }
+}

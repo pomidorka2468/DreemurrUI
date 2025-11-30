@@ -1,0 +1,20 @@
+:root {
+  --bg-page: #f5f0e9;
+  --panel-bg: #fffaf3;
+  --panel-border: #e0d4c4;
+  --divider: #e2d7c7;
+
+  --accent: #e38b3c;
+  --accent-soft: rgba(227, 139, 60, 0.12);
+  --accent-soft-strong: rgba(227, 139, 60, 0.26);
+
+  --text-main: #3d3126;
+  --text-muted: #8b7a67;
+
+  --input-border: #d6c8b7;
+
+  --radius-md: 24px;
+  --radius-pill: 999px;
+
+  --sidebar-width: 72px; /* sidebar width, change once here */
+}

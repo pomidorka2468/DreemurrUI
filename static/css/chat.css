@@ -1,0 +1,150 @@
+/* Chat mode layout */
+
+.chat-layout {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.chat-history {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding-right: 4px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Messages */
+
+.msg {
+  max-width: 90%;
+  padding: 8px 11px;
+  border-radius: 12px;
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.msg.system {
+  margin: 0 auto;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  background: #fff4dd;
+  border-radius: 999px;
+}
+
+.msg.user {
+  margin-left: auto;
+  background: #ffe6c8;
+  border: 1px solid #f5be7a;
+}
+
+.msg.assistant {
+  margin-right: auto;
+  background: #ffffff;
+  border: 1px solid var(--input-border);
+}
+
+.msg-label {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--text-muted);
+  margin-bottom: 3px;
+}
+
+.msg-body {
+  white-space: pre-wrap;
+}
+
+/* Input bar */
+
+.chat-input-bar {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid var(--divider);
+}
+
+.chat-input {
+  flex: 1;
+  resize: vertical;
+  min-height: 46px;
+  max-height: 120px;
+  padding: 7px 9px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--input-border);
+  background: #fff;
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.9rem;
+}
+
+.chat-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px rgba(227, 139, 60, 0.55);
+}
+
+.chat-input-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.chat-small-inputs {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+}
+
+.chat-small-inputs label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 3px;
+}
+
+.chat-small-inputs input {
+  width: 56px;
+  padding: 2px 4px;
+  border-radius: 7px;
+  border: 1px solid var(--input-border);
+  background: #fff;
+  font-size: 0.75rem;
+}
+
+.send-btn {
+  border-radius: var(--radius-pill);
+  border: none;
+  background: var(--accent);
+  color: #fffaf3;
+  padding: 6px 16px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.send-btn:disabled {
+  opacity: 0.65;
+  cursor: default;
+}
+
+/* Responsive */
+
+@media (max-width: 640px) {
+  .chat-input-bar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .chat-input-controls {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+}

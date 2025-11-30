@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>DreamUI – Chat Mode</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="stylesheet" href="/static/css/color.css" />
+  <link rel="stylesheet" href="/static/css/main.css" />
+  <link rel="stylesheet" href="/static/css/chat.css" />
+  <link rel="stylesheet" href="/static/css/notebook.css" />
+</head>
+<body>
+  <div class="app-shell" id="appShell">
+    <!-- LEFT ICON BAR (hidden until opened) -->
+    <aside class="sidebar" id="sidebar">
+      <nav class="mode-list" id="modeList">
+        <button class="mode-icon-btn mode-icon-active" data-mode-id="chat" title="Chat Mode">
+          💬
+        </button>
+        <button class="mode-icon-btn" data-mode-id="notebook" title="Notebook / Free Writing">
+          📓
+        </button>
+        <button class="mode-icon-btn" data-mode-id="model-choice" title="Model Choice">
+          ⚙️
+        </button>
+        <button class="mode-icon-btn" data-mode-id="world" title="World / Story Context">
+          🌍
+        </button>
+        <button class="mode-icon-btn" data-mode-id="characters" title="Characters for Chat">
+          🧑‍🤝‍🧑
+        </button>
+        <button class="mode-icon-btn" data-mode-id="stats" title="App Info / Stats">
+          📊
+        </button>
+      </nav>
+    </aside>
+
+    <!-- MAIN AREA -->
+    <main class="main">
+      <header class="main-header">
+        <div class="main-header-left">
+          <button class="mode-toggle-btn" id="modeToggleBtn" title="Show modes">
+            ☰ Modes
+          </button>
+
+          <div class="main-title-block">
+            <div class="main-title" id="modeTitle">Chat Mode</div>
+            <div class="main-title-sub" id="modeSubtitle">
+              Ask questions, write ideas, and experiment with the model.
+            </div>
+          </div>
+          <div class="main-header-right">
+            <button class="profile-btn" title="Profile / account settings">
+                <span class="profile-avatar">D</span>
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <!-- Here we load the HTML for the current mode -->
+      <section class="mode-container" id="modeContainer">
+        <!-- chat.html / notebook.html etc. will be injected here -->
+      </section>
+    </main>
+  </div>
+
+  <script src="/static/js/main.js"></script>
+  <script src="/static/js/notebook.js"></script>
+</body>
+</html>

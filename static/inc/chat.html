@@ -1,0 +1,51 @@
+<div class="chat-layout">
+  <div class="chat-history" id="chatHistory">
+    <div class="msg system">
+      <div class="msg-body">
+        Welcome to DreamUI. This is Chat Mode.
+      </div>
+    </div>
+  </div>
+
+  <form class="chat-input-bar" id="chatForm">
+    <textarea
+      id="prompt"
+      class="chat-input"
+      placeholder="Type your question… (Enter = send, Shift+Enter = new line)"
+    ></textarea>
+
+    <div class="chat-input-controls">
+      <div class="chat-small-inputs">
+        <label>
+          Temp
+          <input
+            type="number"
+            id="temperature"
+            value="0.7"
+            step="0.1"
+            min="0"
+            max="2"
+          />
+        </label>
+        <label>
+          Max
+          <input
+            type="number"
+            id="maxTokens"
+            value="512"
+            step="16"
+            min="1"
+          />
+        </label>
+      </div>
+
+      <button type="submit" class="send-btn" id="sendBtn">
+        Send
+      </button>
+    </div>
+  </form>
+
+  <div class="status-bar">
+    <span id="status-text">Ready</span>
+  </div>
+</div>

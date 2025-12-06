@@ -1,5 +1,5 @@
 :root {
-  --bg-page: #f5f0e9;
+  --bg-page: radial-gradient(circle at top, #f9f3ea 0, #f2e7d9 40%, #f5f0e9 100%);
   --panel-bg: #fffaf3;
   --panel-border: #e0d4c4;
   --divider: #e2d7c7;
@@ -17,4 +17,20 @@
   --radius-pill: 999px;
 
   --sidebar-width: 72px; /* sidebar width, change once here */
+}
+
+:root[data-theme="dark"] {
+  --bg-page: radial-gradient(circle at top, #1e2431 0, #141926 45%, #0d111a 100%);
+  --panel-bg: #161b26;
+  --panel-border: #262d3b;
+  --divider: #242c3a;
+
+  --accent: #e38b3c;
+  --accent-soft: rgba(227, 139, 60, 0.16);
+  --accent-soft-strong: rgba(227, 139, 60, 0.32);
+
+  --text-main: #e6e9f2;
+  --text-muted: #9aa7c0;
+
+  --input-border: #2c3444;
 }

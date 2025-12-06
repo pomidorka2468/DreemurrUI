@@ -6,6 +6,7 @@ const modeListEl = document.getElementById("modeList");
 const modeContainer = document.getElementById("modeContainer");
 const modeTitleEl = document.getElementById("modeTitle");
 const modeSubtitleEl = document.getElementById("modeSubtitle");
+const themeToggleBtn = document.getElementById("themeToggleBtn");
 
 const modesMeta = {
   chat: {
@@ -40,13 +41,185 @@ const modesMeta = {
   },
 };
 
+const ACTIVE_CHAR_KEY = "dreamui-active-character";
+const THEME_KEY = "dreamui-theme";
+
+// ----- navigation guard for swipe-back -----
+
+function blockSwipeBack() {
+  // keep the current page in history so swipe-back gestures don't exit the app
+  history.replaceState({ blocked: true }, "");
+  history.pushState({ blocked: true }, "");
+  window.addEventListener("popstate", () => {
+    console.debug("[nav] blocked back navigation");
+    history.pushState({ blocked: true }, "");
+  });
+}
+
+// ----- theme handling -----
+
+function applyTheme(theme) {
+  const target = theme === "dark" ? "dark" : "light";
+  document.documentElement.setAttribute("data-theme", target);
+  if (themeToggleBtn) {
+    themeToggleBtn.setAttribute(
+      "aria-label",
+      target === "dark" ? "Switch to light mode" : "Switch to dark mode"
+    );
+    themeToggleBtn.dataset.themeState = target;
+  }
+  localStorage.setItem(THEME_KEY, target);
+}
+
+function initTheme() {
+  const stored = localStorage.getItem(THEME_KEY);
+  const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+  applyTheme(stored || (prefersDark ? "dark" : "light"));
+}
+
+themeToggleBtn?.addEventListener("click", () => {
+  const current = document.documentElement.getAttribute("data-theme") === "dark" ? "dark" : "light";
+  const next = current === "dark" ? "light" : "dark";
+  applyTheme(next);
+});
+
 // ----- layout controls -----
 
-modeToggleBtn.addEventListener("click", () => {
-  const open = appShell.classList.toggle("sidebar-open");
-  modeToggleBtn.textContent = open ? "✕ Modes" : "☰ Modes";
-  modeToggleBtn.title = open ? "Hide modes" : "Show modes";
+function setSidebar(open) {
+  appShell.classList.toggle("sidebar-open", open);
+  console.debug("[sidebar] setSidebar:", open);
+  if (modeToggleBtn) {
+    modeToggleBtn.title = open ? "Hide modes" : "Show modes";
+  }
+}
+
+function toggleSidebar() {
+  console.debug("[sidebar] toggleSidebar");
+  setSidebar(!appShell.classList.contains("sidebar-open"));
+}
+
+modeToggleBtn?.addEventListener("click", () => {
+  toggleSidebar();
 });
+
+// Touch swipe to open/close sidebar
+let touchStartX = null;
+let touchStartY = null;
+const SWIPE_THRESHOLD = 60;
+const EDGE_GUTTER = 1200;
+
+function resetTouch() {
+  touchStartX = null;
+  touchStartY = null;
+}
+
+document.addEventListener(
+  "touchstart",
+  (e) => {
+    const touch = e.touches[0];
+    if (!touch) return;
+    touchStartX = touch.clientX;
+    touchStartY = touch.clientY;
+    console.debug("[sidebar] touchstart", touchStartX, touchStartY);
+  },
+  { passive: true }
+);
+
+document.addEventListener(
+  "touchmove",
+  (e) => {
+    if (touchStartX === null || touchStartY === null) return;
+    const touch = e.touches[0];
+    if (!touch) return;
+    const dy = Math.abs(touch.clientY - touchStartY);
+    // cancel if mostly vertical
+    if (dy > 40) {
+      console.debug("[sidebar] touchmove cancel vertical", dy);
+      resetTouch();
+    }
+  },
+  { passive: true }
+);
+
+document.addEventListener(
+  "touchend",
+  (e) => {
+    if (touchStartX === null || touchStartY === null) return;
+    const touch = e.changedTouches[0];
+    if (!touch) {
+      resetTouch();
+      return;
+    }
+    const dx = touch.clientX - touchStartX;
+    const sidebarOpen = appShell.classList.contains("sidebar-open");
+    console.debug("[sidebar] touchend", { dx, start: touchStartX, open: sidebarOpen });
+
+    if (!sidebarOpen && touchStartX <= EDGE_GUTTER && dx > SWIPE_THRESHOLD) {
+      setSidebar(true);
+    } else if (sidebarOpen && dx < -SWIPE_THRESHOLD) {
+      setSidebar(false);
+    }
+
+    resetTouch();
+  },
+  { passive: true }
+);
+
+// Pointer swipe (touch-capable pointers, e.g., stylus)
+let pointerStartX = null;
+let pointerStartY = null;
+
+function resetPointer() {
+  pointerStartX = null;
+  pointerStartY = null;
+}
+
+document.addEventListener(
+  "pointerdown",
+  (e) => {
+    if (e.pointerType !== "touch") return;
+    pointerStartX = e.clientX;
+    pointerStartY = e.clientY;
+    console.debug("[sidebar] pointerdown", pointerStartX, pointerStartY);
+  },
+  { passive: true }
+);
+
+document.addEventListener(
+  "pointermove",
+  (e) => {
+    if (pointerStartX === null || pointerStartY === null) return;
+    if (e.pointerType !== "touch") return;
+    const dy = Math.abs(e.clientY - pointerStartY);
+    if (dy > 40) {
+      console.debug("[sidebar] pointermove cancel vertical", dy);
+      resetPointer();
+    }
+  },
+  { passive: true }
+);
+
+document.addEventListener(
+  "pointerup",
+  (e) => {
+    if (pointerStartX === null || pointerStartY === null) return;
+    if (e.pointerType !== "touch") {
+      resetPointer();
+      return;
+    }
+    const dx = e.clientX - pointerStartX;
+    const sidebarOpen = appShell.classList.contains("sidebar-open");
+    console.debug("[sidebar] pointerup", { dx, start: pointerStartX, open: sidebarOpen });
+
+    if (!sidebarOpen && pointerStartX <= EDGE_GUTTER && dx > SWIPE_THRESHOLD) {
+      setSidebar(true);
+    } else if (sidebarOpen && dx < -SWIPE_THRESHOLD) {
+      setSidebar(false);
+    }
+    resetPointer();
+  },
+  { passive: true }
+);
 
 // click on mode icons
 modeListEl.addEventListener("click", (e) => {
@@ -90,6 +263,16 @@ async function loadMode(modeId) {
   // attach JS behavior for that mode
   if (modeId === "chat") {
     initChatMode();
+  } else if (
+    modeId === "notebook" &&
+    typeof window.initNotebookMode === "function"
+  ) {
+    window.initNotebookMode();
+  } else if (
+    modeId === "characters" &&
+    typeof window.initCharactersMode === "function"
+  ) {
+    window.initCharactersMode();
   }
 }
 
@@ -100,9 +283,14 @@ function initChatMode() {
   const chatForm = document.getElementById("chatForm");
   const promptEl = document.getElementById("prompt");
   const sendBtn = document.getElementById("sendBtn");
-  const tempEl = document.getElementById("temperature");
-  const maxTokensEl = document.getElementById("maxTokens");
   const statusText = document.getElementById("status-text");
+  let currentCharacter = {
+    id: 1,
+    name: "Assistant",
+    icon: "/static/icons/chat.svg",
+    greeting: "Welcome to DreamUI.",
+    personality: "",
+  };
 
   if (!chatForm) return;
 
@@ -118,7 +306,28 @@ function initChatMode() {
     } else {
       const label = document.createElement("div");
       label.className = "msg-label";
-      label.textContent = role === "user" ? "You" : "Assistant";
+      if (role === "user") {
+        label.textContent = "You";
+      } else {
+        const name = currentCharacter.name || "Assistant";
+        const iconVal = currentCharacter.icon;
+        label.classList.add("msg-label-assistant");
+        if (iconVal && iconVal.endsWith(".svg")) {
+          const img = document.createElement("img");
+          img.src = iconVal;
+          img.alt = name;
+          img.className = "msg-label-icon";
+          label.appendChild(img);
+        } else if (iconVal) {
+          const spanIcon = document.createElement("span");
+          spanIcon.textContent = iconVal;
+          spanIcon.className = "msg-label-icon";
+          label.appendChild(spanIcon);
+        }
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = name;
+        label.appendChild(nameSpan);
+      }
 
       const body = document.createElement("div");
       body.className = "msg-body";
@@ -133,10 +342,6 @@ function initChatMode() {
     return msg;
   }
 
-  if (modeId === "notebook" && typeof window.initNotebookMode === "function") {
-  window.initNotebookMode();
-}
-
   async function sendMessage() {
     const prompt = promptEl.value.trim();
     if (!prompt) return;
@@ -147,12 +352,11 @@ function initChatMode() {
     promptEl.focus();
 
     sendBtn.disabled = true;
-    statusText.textContent = "Thinking…";
+    statusText.textContent = "Thinking?";
 
     const payload = {
-      prompt: prompt,
-      temperature: parseFloat(tempEl.value) || 0.7,
-      max_tokens: parseInt(maxTokensEl.value, 10) || 512,
+      prompt,
+      character_id: parseInt(currentCharacter.id, 10) || 1,
     };
 
     // create assistant bubble now, fill it as tokens arrive
@@ -223,9 +427,42 @@ function initChatMode() {
       sendMessage();
     }
   });
+
+  async function loadCharacterMeta() {
+    const storedId = localStorage.getItem(ACTIVE_CHAR_KEY);
+    const parsedId = parseInt(storedId || "1", 10);
+    const targetId = Number.isFinite(parsedId) ? parsedId : 1;
+    try {
+      const res = await fetch(`/characters/${targetId}`, {
+        cache: "no-cache",
+      });
+      if (res.ok) {
+        const data = await res.json();
+        currentCharacter = {
+          id: data.id,
+          name: data.name,
+          icon: data.icon || "/static/icons/chat.svg",
+          greeting: data.greeting || "Ready.",
+          personality: data.personality || "",
+        };
+        addMessage(
+          "system",
+          `${currentCharacter.icon || ""} ${currentCharacter.name}: ${
+            currentCharacter.greeting
+          }`
+        );
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  }
+
+  loadCharacterMeta();
 }
 
 // initial load
 document.addEventListener("DOMContentLoaded", () => {
+  initTheme();
+  blockSwipeBack();
   loadMode("chat");
 });

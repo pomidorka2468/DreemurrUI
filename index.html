@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
@@ -8,29 +8,30 @@
   <link rel="stylesheet" href="/static/css/main.css" />
   <link rel="stylesheet" href="/static/css/chat.css" />
   <link rel="stylesheet" href="/static/css/notebook.css" />
+  <link rel="stylesheet" href="/static/css/character.css" />
 </head>
 <body>
   <div class="app-shell" id="appShell">
     <!-- LEFT ICON BAR (hidden until opened) -->
     <aside class="sidebar" id="sidebar">
       <nav class="mode-list" id="modeList">
-        <button class="mode-icon-btn mode-icon-active" data-mode-id="chat" title="Chat Mode">
-          💬
+        <button class="mode-icon-btn mode-icon-active mode-chat" data-mode-id="chat" title="Chat Mode">
+          <img src="/static/icons/chat.svg" alt="Chat" />
         </button>
-        <button class="mode-icon-btn" data-mode-id="notebook" title="Notebook / Free Writing">
-          📓
+        <button class="mode-icon-btn mode-notebook" data-mode-id="notebook" title="Notebook / Free Writing">
+          <img src="/static/icons/pen.svg" alt="Notebook" />
         </button>
-        <button class="mode-icon-btn" data-mode-id="model-choice" title="Model Choice">
-          ⚙️
+        <button class="mode-icon-btn mode-model" data-mode-id="model-choice" title="Model Choice">
+          <img src="/static/icons/cube.svg" alt="Model Choice" />
         </button>
-        <button class="mode-icon-btn" data-mode-id="world" title="World / Story Context">
-          🌍
+        <button class="mode-icon-btn mode-world" data-mode-id="world" title="World / Story Context">
+          <img src="/static/icons/book.svg" alt="World" />
         </button>
-        <button class="mode-icon-btn" data-mode-id="characters" title="Characters for Chat">
-          🧑‍🤝‍🧑
+        <button class="mode-icon-btn mode-characters" data-mode-id="characters" title="Characters for Chat">
+          <img src="/static/icons/character_info.svg" alt="Characters" />
         </button>
-        <button class="mode-icon-btn" data-mode-id="stats" title="App Info / Stats">
-          📊
+        <button class="mode-icon-btn mode-stats" data-mode-id="stats" title="App Info / Stats">
+          <img src="/static/icons/info.svg" alt="Stats" />
         </button>
       </nav>
     </aside>
@@ -39,10 +40,6 @@
     <main class="main">
       <header class="main-header">
         <div class="main-header-left">
-          <button class="mode-toggle-btn" id="modeToggleBtn" title="Show modes">
-            ☰ Modes
-          </button>
-
           <div class="main-title-block">
             <div class="main-title" id="modeTitle">Chat Mode</div>
             <div class="main-title-sub" id="modeSubtitle">
@@ -50,8 +47,14 @@
             </div>
           </div>
           <div class="main-header-right">
-            <button class="profile-btn" title="Profile / account settings">
-                <span class="profile-avatar">D</span>
+            <button class="theme-toggle" id="themeToggleBtn" aria-label="Toggle theme">
+              <span class="theme-icon">
+                <span class="sun-ray ray1"></span>
+                <span class="sun-ray ray2"></span>
+                <span class="sun-ray ray3"></span>
+                <span class="sun-core"></span>
+                <span class="moon-core"></span>
+              </span>
             </button>
           </div>
         </div>
@@ -66,5 +69,6 @@
 
   <script src="/static/js/main.js"></script>
   <script src="/static/js/notebook.js"></script>
+  <script src="/static/js/character.js"></script>
 </body>
 </html>

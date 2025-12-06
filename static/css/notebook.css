@@ -4,56 +4,61 @@
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   min-height: 0;
+}
+
+.nb-phone-layout {
+  align-self: center;
+  width: min(900px, 100%);
+  height: 100%;
+  padding: 10px 12px 14px;
+  border-radius: 14px;
+  border: 1px solid var(--panel-border);
+  background: var(--panel-bg);
+  box-shadow: 0 8px 22px var(--surface-shadow);
+  gap: 10px;
 }
 
 /* Top tabs + token count */
 
-.nb-top-strip {
+.nb-phone-top {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding: 4px 2px 6px;
+  gap: 10px;
 }
 
-.nb-tabs {
-  display: inline-flex;
-  gap: 4px;
-  padding: 2px;
-  border-radius: 999px;
-  background: #fff3e3;
-  border: 1px solid #ead3b7;
+.nb-tab-bar {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  overflow-x: auto;
+  padding-bottom: 2px;
 }
 
 .nb-tab {
-  border: none;
+  border: 1px solid transparent;
   background: transparent;
-  padding: 4px 10px;
-  font-size: 0.78rem;
-  border-radius: 999px;
+  padding: 6px 10px;
+  font-size: 0.82rem;
+  border-radius: 10px 10px 8px 8px;
   cursor: pointer;
   color: var(--text-muted);
+  white-space: nowrap;
+  font-weight: 500;
+  transition: background 0.12s ease, border-color 0.12s ease,
+    color 0.12s ease, transform 0.06s ease;
+}
+
+.nb-tab:hover {
+  color: var(--text-main);
 }
 
 .nb-tab-active {
-  background: #fffaf3;
+  background: var(--surface-2);
   color: var(--text-main);
-  font-weight: 500;
-  box-shadow: 0 0 0 1px rgba(227, 139, 60, 0.28);
-}
-
-.nb-top-right {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-.nb-token-count {
-  padding: 3px 8px;
-  border-radius: 999px;
-  background: #fff;
-  border: 1px solid var(--input-border);
+  border-color: var(--panel-border);
+  box-shadow: 0 2px 6px var(--surface-shadow);
 }
 
 /* Subviews */
@@ -89,7 +94,7 @@
   padding: 3px 6px;
   border-radius: 8px;
   border: 1px solid var(--input-border);
-  background: #fff;
+  background: var(--input-bg);
   font-size: 0.8rem;
 }
 
@@ -122,7 +127,7 @@
   padding: 4px 8px;
   border-radius: 8px;
   border: 1px solid var(--input-border);
-  background: #fff;
+  background: var(--input-bg);
   color: var(--text-main);
   font-size: 0.85rem;
 }
@@ -130,7 +135,7 @@
 .nb-style-input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(227, 139, 60, 0.55);
+  box-shadow: 0 0 0 1px var(--accent-glow);
 }
 
 .nb-context-text {
@@ -141,7 +146,7 @@
   resize: vertical;
   border-radius: 8px;
   border: 1px solid var(--input-border);
-  background: #fff;
+  background: var(--input-bg);
   padding: 6px 8px;
   font-size: 0.85rem;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
@@ -151,20 +156,35 @@
 
 /* Editor area */
 
-.notebook-editor-wrap {
+.nb-phone-body {
   flex: 1;
   min-height: 0;
-  margin-top: 4px;
-  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.nb-editor-shell {
+  flex: 1;
+  min-height: 0;
+  border-radius: 12px;
   border: 1px solid var(--input-border);
-  background: #fffef9;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.03);
-  padding: 8px;
+  background: var(--surface-2);
+  box-shadow: inset 0 1px 3px var(--surface-shadow);
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.nb-phone-editor {
+  min-height: 520px;
 }
 
 .notebook-text {
   width: 100%;
   height: 100%;
+  flex: 1;
+  min-height: 0;
   resize: none;
   border: none;
   background: transparent;
@@ -172,11 +192,21 @@
   font-family: "Georgia", "Times New Roman", serif;
   font-size: 0.95rem;
   line-height: 1.6;
-  padding: 0;
+  padding: 2px;
 }
 
 .notebook-text:focus {
   outline: none;
+}
+
+.nb-token-counter {
+  align-self: flex-end;
+  padding: 4px 8px;
+  border-radius: 12px;
+  border: 1px solid var(--input-border);
+  background: var(--surface-2);
+  font-size: 0.78rem;
+  color: var(--text-muted);
 }
 
 /* Top small buttons reused from chat */
@@ -184,7 +214,7 @@
 .nb-btn {
   border-radius: var(--radius-pill);
   border: 1px solid var(--input-border);
-  background: #fffaf3;
+  background: var(--surface-1);
   padding: 4px 10px;
   font-size: 0.8rem;
   cursor: pointer;
@@ -201,7 +231,7 @@
 .nb-btn-primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fffaf3;
+  color: var(--text-on-accent);
 }
 
 .nb-btn-ghost {
@@ -213,50 +243,67 @@
   font-size: 0.76rem;
 }
 
-/* Bottom round buttons */
+/* Bottom action buttons */
 
-.nb-bottom-bar {
-  margin-top: 6px;
+.nb-phone-actions {
   display: flex;
-  justify-content: center;
   gap: 10px;
+  margin-top: 6px;
 }
 
-.nb-round-btn {
-  width: 40px;
-  height: 40px;
-  border-radius: 16px;
+.nb-action-btn {
+  flex: 1;
+  height: 46px;
+  border-radius: 12px;
   border: 1px solid var(--input-border);
-  background: #fffaf3;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.2rem;
+  background: var(--surface-1);
+  color: var(--text-main);
+  font-weight: 600;
+  font-size: 0.88rem;
   cursor: pointer;
+  box-shadow: 0 1px 2px var(--surface-shadow);
   transition: background 0.12s ease, border-color 0.12s ease,
     transform 0.06s ease;
 }
 
-.nb-round-btn:hover {
+.nb-action-btn:hover {
   background: var(--accent-soft);
   border-color: var(--accent-soft-strong);
 }
 
-.nb-round-btn-primary {
+.nb-action-primary {
   background: var(--accent);
   border-color: var(--accent);
-  color: #fffaf3;
+  color: var(--text-on-accent);
 }
 
 /* Responsive */
 
 @media (max-width: 640px) {
-  .nb-top-strip {
-    flex-direction: column;
-    align-items: stretch;
+  .nb-phone-layout {
+    width: 100%;
+    padding-inline: 10px;
   }
 
-  .nb-top-right {
-    align-self: flex-end;
+  .nb-phone-top {
+    gap: 8px;
+  }
+
+  .nb-tab {
+    padding: 6px 8px;
+  }
+}
+
+@media (min-width: 900px) {
+  .nb-phone-layout {
+    padding: 14px 18px 18px;
+  }
+
+  .nb-tab {
+    padding: 8px 14px;
+  }
+
+  .nb-phone-editor {
+    min-height: 680px;
   }
 }

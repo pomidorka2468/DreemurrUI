@@ -1,0 +1,152 @@
+/* Character management layout */
+
+.char-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.char-title-block {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.char-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.char-subtitle {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.char-header-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.char-icon-btn {
+  border: 1px solid var(--divider);
+  background: var(--surface-2);
+  padding: 6px 10px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: 0.95rem;
+}
+
+.char-section {
+  border-radius: var(--radius-lg);
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+.char-ghost-btn {
+  border: 1px solid var(--divider);
+  background: var(--surface-2);
+  color: var(--text-main);
+  padding: 5px 10px;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.char-select,
+.char-input,
+.char-textarea {
+  width: 100%;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-md);
+  background: var(--input-bg);
+  font-size: 0.95rem;
+  padding: 7px 9px;
+  color: var(--text-main);
+}
+
+.char-textarea {
+  min-height: 160px;
+  resize: vertical;
+}
+
+.char-label {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.two-col {
+  flex-direction: row;
+  gap: 10px;
+}
+
+.two-col .char-field {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.char-icon-field {
+  max-width: 140px;
+  align-items: stretch;
+}
+
+.char-icon-picker {
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px dashed var(--input-border);
+  background: var(--surface-1);
+  padding: 14px;
+  cursor: pointer;
+  font-size: 1.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.char-token-count {
+  position: absolute;
+  right: 10px;
+  bottom: 8px;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.char-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.char-row .char-select {
+  flex: 1;
+}
+
+.char-row-actions {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.char-icon-wrap {
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.char-textarea-wrap {
+  position: relative;
+}
+
+.char-textarea {
+  padding-bottom: 26px;
+}
+
+@media (max-width: 720px) {
+  .two-col {
+    flex-direction: column;
+  }
+}

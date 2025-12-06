@@ -4,7 +4,7 @@ from pydantic import BaseModel
 import httpx
 
 LM_URL = "http://127.0.0.1:1234/v1/chat/completions"
-DEFAULT_MODEL = "mistralai/mistral-nemo-instruct-2407"
+DEFAULT_MODEL = "dolphin3.0-llama3.1-8b"
 from .character import fetch_character
 
 router = APIRouter()

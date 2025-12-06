@@ -8,7 +8,6 @@ const NB_API_BASE = "/notebook";
 
     const textEl = document.getElementById("nbText");
     const styleEl = document.getElementById("nbStyle");
-    const tempEl = document.getElementById("nbTemp");
     const statusEl = document.getElementById("nbStatus");
     const tokenCountEl = document.getElementById("nbTokenCount");
 
@@ -20,15 +19,17 @@ const NB_API_BASE = "/notebook";
     const loadBtn = document.getElementById("nbLoadBtn");
 
     const revertBtn = document.getElementById("nbRevertBtn");
-    const regenBtn = document.getElementById("nbRegenBtn");
+    const stopBtn = document.getElementById("nbStopBtn");
     const contBtn = document.getElementById("nbContinueBtn");
 
     const tabs = layout.querySelectorAll(".nb-tab");
     const panels = layout.querySelectorAll(".nb-subpanel");
 
-    let lastState = null;          // text before last AI change
-    let lastAction = null;         // "continue"
-    let lastPayload = null;        // payload used for last action
+    let lastState = null; // text before last AI change
+    let lastAction = null; // "continue"
+    let lastPayload = null; // payload used for last action
+    let currentStreamController = null;
+    let streaming = false;
 
     function setStatus(msg) {
       if (statusEl) statusEl.textContent = msg;
@@ -38,7 +39,7 @@ const NB_API_BASE = "/notebook";
       if (!tokenCountEl || !textEl) return;
       const chars = textEl.value.length;
       const approxTokens = Math.max(0, Math.round(chars / 4)); // rough estimate
-      tokenCountEl.textContent = `${approxTokens} tokens (≈)`;
+      tokenCountEl.textContent = `${approxTokens} tokens`;
     }
 
     // --- Tab switching ---
@@ -47,6 +48,7 @@ const NB_API_BASE = "/notebook";
       tabs.forEach((btn) => {
         const active = btn.dataset.tab === tabName;
         btn.classList.toggle("nb-tab-active", active);
+        btn.setAttribute("aria-selected", active ? "true" : "false");
       });
       panels.forEach((panel) => {
         const active = panel.dataset.tab === tabName;
@@ -64,15 +66,75 @@ const NB_API_BASE = "/notebook";
 
     // --- AI actions ---
 
+    function abortActiveStream() {
+      if (currentStreamController) {
+        currentStreamController.abort();
+        currentStreamController = null;
+        streaming = false;
+      }
+    }
+
+    async function streamContinue(payload, baseText) {
+      abortActiveStream();
+      currentStreamController = new AbortController();
+      streaming = true;
+
+      const res = await fetch(`${NB_API_BASE}/continue`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+        signal: currentStreamController.signal,
+      });
+
+      if (!res.ok || !res.body) {
+        throw new Error("HTTP " + res.status);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+
+      // start from existing text
+      textEl.value = baseText;
+
+      try {
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          buffer += decoder.decode(value, { stream: true });
+          const lines = buffer.split("\n");
+          buffer = lines.pop() ?? "";
+
+          for (const line of lines) {
+            const trimmed = line.trim();
+            if (!trimmed) continue;
+            try {
+              const json = JSON.parse(trimmed);
+              const delta = json.choices?.[0]?.delta?.content;
+              if (delta) {
+                textEl.value += delta;
+                updateTokens();
+              }
+            } catch {
+              // ignore parse errors
+            }
+          }
+        }
+      } finally {
+        streaming = false;
+        currentStreamController = null;
+      }
+    }
+
     async function callContinue() {
       if (!textEl) return;
       const fullText = textEl.value;
       if (!fullText.trim()) return;
 
-      setStatus("Continuing…");
+      setStatus("Continuing...");
 
       const style = styleEl?.value || "";
-      const temp = parseFloat(tempEl?.value || "0.8") || 0.8;
 
       // Use optional context/guide if provided; otherwise whole text
       let baseText = fullText;
@@ -83,8 +145,6 @@ const NB_API_BASE = "/notebook";
       const payload = {
         text: baseText,
         style: style || null,
-        temperature: temp,
-        max_tokens: 512,
       };
 
       lastState = fullText;
@@ -92,58 +152,25 @@ const NB_API_BASE = "/notebook";
       lastPayload = payload;
 
       try {
-        const res = await fetch(`${NB_API_BASE}/continue`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
-        });
-
-        if (!res.ok) throw new Error("HTTP " + res.status);
-
-        const data = await res.json();
-        const cont = data.text || "";
-        textEl.value = fullText + cont;
-        updateTokens();
+        await streamContinue(payload, fullText);
         setStatus("Ready");
       } catch (err) {
-        console.error(err);
-        setStatus("Error: " + err.message);
+        if (err.name === "AbortError") {
+          setStatus("Cancelled");
+        } else {
+          console.error(err);
+          setStatus("Error: " + err.message);
+        }
       }
     }
 
-    async function callRegen() {
-      if (!lastPayload || !lastAction || lastAction !== "continue") {
-        setStatus("Nothing to regenerate.");
-        return;
-      }
-      if (!textEl || lastState == null) return;
-
-      // revert to state before last AI call, then call continue again
-      textEl.value = lastState;
-      updateTokens();
-      setStatus("Regenerating…");
-
-      try {
-        const res = await fetch(`${NB_API_BASE}/continue`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(lastPayload),
-        });
-
-        if (!res.ok) throw new Error("HTTP " + res.status);
-
-        const data = await res.json();
-        const cont = data.text || "";
-        textEl.value = lastState + cont;
-        updateTokens();
-        setStatus("Ready");
-      } catch (err) {
-        console.error(err);
-        setStatus("Error: " + err.message);
-      }
+    function stopStreaming() {
+      abortActiveStream();
+      setStatus("Cancelled");
     }
 
     function revertLast() {
+      abortActiveStream();
       if (!textEl || lastState == null) {
         setStatus("Nothing to revert.");
         return;
@@ -213,9 +240,9 @@ const NB_API_BASE = "/notebook";
       callContinue();
     });
 
-    regenBtn?.addEventListener("click", (e) => {
+    stopBtn?.addEventListener("click", (e) => {
       e.preventDefault();
-      callRegen();
+      stopStreaming();
     });
 
     revertBtn?.addEventListener("click", (e) => {
@@ -239,3 +266,4 @@ const NB_API_BASE = "/notebook";
     setStatus("Ready");
   };
 })();
+

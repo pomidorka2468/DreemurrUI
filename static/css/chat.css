@@ -31,19 +31,19 @@
   margin: 0 auto;
   font-size: 0.8rem;
   color: var(--text-muted);
-  background: #fff4dd;
+  background: var(--surface-highlight);
   border-radius: 999px;
 }
 
 .msg.user {
   margin-left: auto;
-  background: #ffe6c8;
-  border: 1px solid #f5be7a;
+  background: var(--surface-user);
+  border: 1px solid var(--surface-user-border);
 }
 
 .msg.assistant {
   margin-right: auto;
-  background: #ffffff;
+  background: var(--surface-2);
   border: 1px solid var(--input-border);
 }
 
@@ -53,6 +53,28 @@
   letter-spacing: 0.12em;
   color: var(--text-muted);
   margin-bottom: 3px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.msg-label-assistant {
+  text-transform: none;
+  letter-spacing: 0.05em;
+}
+
+.msg-label-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+}
+
+.msg-label-icon img {
+  width: 18px;
+  height: 18px;
+  display: block;
 }
 
 .msg-body {
@@ -77,7 +99,7 @@
   padding: 7px 9px;
   border-radius: var(--radius-md);
   border: 1px solid var(--input-border);
-  background: #fff;
+  background: var(--input-bg);
   color: var(--text-main);
   font-family: inherit;
   font-size: 0.9rem;
@@ -86,43 +108,19 @@
 .chat-input:focus {
   outline: none;
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px rgba(227, 139, 60, 0.55);
+  box-shadow: 0 0 0 1px var(--accent-glow);
 }
 
 .chat-input-controls {
   display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.chat-small-inputs {
-  display: flex;
-  gap: 4px;
-  justify-content: flex-end;
-}
-
-.chat-small-inputs label {
-  font-size: 0.72rem;
-  color: var(--text-muted);
-  display: flex;
-  align-items: center;
-  gap: 3px;
-}
-
-.chat-small-inputs input {
-  width: 56px;
-  padding: 2px 4px;
-  border-radius: 7px;
-  border: 1px solid var(--input-border);
-  background: #fff;
-  font-size: 0.75rem;
+  align-items: flex-end;
 }
 
 .send-btn {
   border-radius: var(--radius-pill);
   border: none;
   background: var(--accent);
-  color: #fffaf3;
+  color: var(--text-on-accent);
   padding: 6px 16px;
   font-size: 0.85rem;
   font-weight: 500;

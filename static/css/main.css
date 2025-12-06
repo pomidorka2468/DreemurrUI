@@ -36,7 +36,7 @@ body {
   flex: 0 0 0;
   width: 0;
   border-right: 1px solid var(--divider);
-  background: #fff8eb;
+  background: var(--surface-1);
   overflow: hidden;
   padding: 10px 0;
   transition: flex-basis 0.18s ease-in-out, width 0.18s ease-in-out;
@@ -155,8 +155,8 @@ body {
   gap: 10px;
   background: linear-gradient(
     to right,
-    rgba(255, 250, 243, 1),
-    rgba(255, 247, 236, 1)
+    var(--header-grad-start),
+    var(--header-grad-end)
   );
 }
 
@@ -171,7 +171,7 @@ body {
   height: 40px;
   border-radius: 14px;
   border: 1px solid var(--accent-soft-strong);
-  background: #fff;
+  background: var(--surface-2);
   cursor: pointer;
   padding: 6px;
   display: inline-flex;
@@ -221,7 +221,7 @@ body {
 .profile-btn {
   border-radius: var(--radius-pill);
   border: 1px solid var(--input-border);
-  background: #fff;
+  background: var(--surface-2);
   padding: 2px;
   display: inline-flex;
   align-items: center;
@@ -233,8 +233,8 @@ body {
   width: 26px;
   height: 26px;
   border-radius: 999px;
-  background: linear-gradient(135deg, #f97373, #fbbf24);
-  color: #3f2a18;
+  background: color-mix(in srgb, var(--accent) 70%, transparent);
+  color: var(--text-on-accent);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -247,7 +247,7 @@ body {
 .theme-toggle {
   border-radius: var(--radius-pill);
   border: 1px solid var(--input-border);
-  background: #fff;
+  background: var(--surface-2);
   padding: 6px;
   display: inline-flex;
   align-items: center;
@@ -283,14 +283,14 @@ body {
 .sun-core {
   width: 14px;
   height: 14px;
-  background: linear-gradient(135deg, #ffd166, #fca311);
-  box-shadow: 0 0 10px rgba(252, 163, 17, 0.4);
+  background: var(--accent);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 45%, transparent);
 }
 
 .sun-ray {
   width: 18px;
   height: 18px;
-  border: 2px solid #fca311;
+  border: 2px solid var(--accent);
   border-radius: 50%;
   animation: spin-rays 6s linear infinite;
   opacity: 0.9;
@@ -306,10 +306,10 @@ body {
 .moon-core {
   width: 14px;
   height: 14px;
-  background: radial-gradient(circle at 30% 30%, #ffffff, #a3b2d1 70%, #657397);
+  background: radial-gradient(circle at 30% 30%, var(--surface-2), color-mix(in srgb, var(--text-muted) 50%, transparent) 70%, color-mix(in srgb, var(--text-muted) 90%, transparent));
   transform: translateX(12px) scale(0.7);
   opacity: 0;
-  box-shadow: 0 0 10px rgba(147, 164, 201, 0.4);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--text-muted) 45%, transparent);
 }
 
 :root[data-theme="dark"] .sun-ray,

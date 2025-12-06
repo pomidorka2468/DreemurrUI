@@ -1,48 +1,44 @@
-<div class="notebook-layout">
-  <!-- Top strip: sub-views -->
-  <div class="nb-top-strip">
-  <button class="nb-tab nb-tab-active" data-tab="generate" title="Generate">
-    <span class="nb-tab-icon">✨</span>
-    <span class="nb-tab-label">Generate</span>
-  </button>
-  <button class="nb-tab" data-tab="save" title="Save / Load">
-    <span class="nb-tab-icon">💾</span>
-    <span class="nb-tab-label">Save / Load</span>
-  </button>
-  <button class="nb-tab" data-tab="context" title="Context">
-    <span class="nb-tab-icon">📚</span>
-    <span class="nb-tab-label">Context</span>
-  </button>
-  <button class="nb-tab" data-tab="guide" title="Guide / Instructions">
-    <span class="nb-tab-icon">🎭</span>
-    <span class="nb-tab-label">Guide</span>
-  </button>
-</div>
-
-
-  <!-- Main editor -->
-  <div class="nb-editor-shell">
-    <textarea
-      id="nbText"
-      class="notebook-text"
-      placeholder="Write your story or notes here…"
-    ></textarea>
-
-    <div class="nb-token-counter">
-      <span id="nbTokenCount">0 tokens</span>
+<div class="notebook-layout nb-phone-layout">
+  <div class="nb-phone-top">
+    <div class="nb-tab-bar" role="tablist" aria-label="Notebook sections">
+      <button class="nb-tab nb-tab-active" data-tab="generate" role="tab" aria-selected="true">
+        Generate
+      </button>
+      <button class="nb-tab" data-tab="save" role="tab" aria-selected="false">
+        Save / Load
+      </button>
+      <button class="nb-tab" data-tab="context" role="tab" aria-selected="false">
+        Context
+      </button>
+      <button class="nb-tab" data-tab="guide" role="tab" aria-selected="false">
+        Guide
+      </button>
     </div>
   </div>
 
-  <!-- Bottom control bar -->
-  <div class="nb-bottom-bar">
-    <button id="nbRevertBtn" class="nb-round-btn" title="Revert last AI action">
-      ←
+  <div class="nb-phone-body">
+    <div class="nb-editor-shell nb-phone-editor">
+      <textarea
+        id="nbText"
+        class="notebook-text"
+        placeholder="Write your story or notes here..."
+      ></textarea>
+
+      <div class="nb-token-counter">
+        <span id="nbTokenCount">0 tokens</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="nb-phone-actions">
+    <button id="nbRevertBtn" class="nb-action-btn" title="Revert last AI action">
+      Undo
     </button>
-    <button id="nbRegenBtn" class="nb-round-btn" title="Regenerate">
-      ⟳
+    <button id="nbStopBtn" class="nb-action-btn" title="Stop streaming">
+      Stop
     </button>
-    <button id="nbContinueBtn" class="nb-round-btn nb-round-btn-primary" title="Continue">
-      +
+    <button id="nbContinueBtn" class="nb-action-btn nb-action-primary" title="Continue">
+      Generate
     </button>
   </div>
 

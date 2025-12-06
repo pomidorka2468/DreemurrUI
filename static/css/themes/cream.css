@@ -1,0 +1,34 @@
+:root {
+  --bg-page: radial-gradient(circle at top, #f9f3ea 0, #f2e7d9 40%, #f5f0e9 100%);
+  --panel-bg: #fffaf3;
+  --panel-border: #e0d4c4;
+  --divider: #e2d7c7;
+
+  --surface-1: #fffaf3;
+  --surface-2: #ffffff;
+  --surface-3: #ffffff;
+  --surface-highlight: #fff4dd;
+  --surface-user: #ffe6c8;
+  --surface-user-border: #f5be7a;
+  --surface-shadow: rgba(0, 0, 0, 0.05);
+
+  --accent: #e38b3c;
+  --accent-soft: rgba(227, 139, 60, 0.12);
+  --accent-soft-strong: rgba(227, 139, 60, 0.26);
+  --accent-glow: rgba(227, 139, 60, 0.55);
+
+  --text-main: #3d3126;
+  --text-muted: #8b7a67;
+  --text-on-accent: #fffaf3;
+
+  --input-border: #d6c8b7;
+  --input-bg: #ffffff;
+
+  --header-grad-start: #fffaf3;
+  --header-grad-end: #fff7ec;
+
+  --radius-md: 24px;
+  --radius-pill: 999px;
+
+  --sidebar-width: 56px;
+}

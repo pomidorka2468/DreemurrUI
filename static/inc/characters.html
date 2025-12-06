@@ -1,0 +1,49 @@
+﻿<div class="char-layout">
+  <section class="char-section">
+    <label class="char-label" for="charSelect">Character Select</label>
+    <div class="char-row">
+      <select id="charSelect" class="char-select"></select>
+      <div class="char-row-actions">
+        <button class="char-ghost-btn" id="charNewBtn" title="New character">＋</button>
+        <button class="char-ghost-btn" id="charSaveBtn" title="Save character">Save</button>
+        <button class="char-ghost-btn" id="charLoadBtn" title="Load character for chat">Load</button>
+        <button class="char-ghost-btn" id="charDeleteBtn" title="Delete character">🗑</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="char-section two-col">
+    <div class="char-field">
+      <label for="charName" class="char-label">Character Name</label>
+      <input id="charName" class="char-input" type="text" placeholder="Assistant" />
+    </div>
+    <div class="char-field char-icon-field">
+      <label class="char-label">Character Icon</label>
+      <div class="char-icon-wrap">
+        <button id="charIconBtn" class="char-icon-picker" title="Pick icon">🙂</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="char-section">
+    <label for="charGreeting" class="char-label">Greeting</label>
+    <input
+      id="charGreeting"
+      class="char-input"
+      type="text"
+      placeholder="Hello {username}"
+    />
+  </section>
+
+  <section class="char-section">
+    <label for="charPersonality" class="char-label">Personality / Memory</label>
+    <div class="char-textarea-wrap">
+      <textarea
+        id="charPersonality"
+        class="char-textarea"
+        placeholder="Professional, subtle, creative writing."
+      ></textarea>
+      <span id="charTokenCount" class="char-token-count">0 tokens</span>
+    </div>
+  </section>
+</div>

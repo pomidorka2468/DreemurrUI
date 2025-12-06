@@ -1,49 +1,59 @@
-﻿<div class="char-layout">
+<div class="char-layout">
   <section class="char-section">
-    <label class="char-label" for="charSelect">Character Select</label>
+    <label class="char-label" for="charSelect" data-lang="char.select">Character Select</label>
     <div class="char-row">
       <select id="charSelect" class="char-select"></select>
-      <div class="char-row-actions">
-        <button class="char-ghost-btn" id="charNewBtn" title="New character">＋</button>
-        <button class="char-ghost-btn" id="charSaveBtn" title="Save character">Save</button>
-        <button class="char-ghost-btn" id="charLoadBtn" title="Load character for chat">Load</button>
-        <button class="char-ghost-btn" id="charDeleteBtn" title="Delete character">🗑</button>
-      </div>
+    </div>
+    <div class="char-actions-row">
+      <button class="char-ghost-btn" id="charSaveBtn" title="Save character" data-lang="char.save" data-lang-title="char.save_title">Save</button>
+      <button class="char-ghost-btn" id="charLoadBtn" title="Load character for chat" data-lang="char.load" data-lang-title="char.load_title">Load</button>
+      <button class="char-ghost-btn" id="charDeleteBtn" title="Delete character" data-lang="char.delete" data-lang-title="char.delete_title">🗑</button>
+      <button class="char-ghost-btn" id="charNewBtn" title="Create new character" data-lang-title="char.new_title" data-lang="char.new">Create new character</button>
     </div>
   </section>
 
-  <section class="char-section two-col">
-    <div class="char-field">
-      <label for="charName" class="char-label">Character Name</label>
-      <input id="charName" class="char-input" type="text" placeholder="Assistant" />
-    </div>
+  <section class="char-section char-icon-stack">
     <div class="char-field char-icon-field">
-      <label class="char-label">Character Icon</label>
+      <label class="char-label" data-lang="char.icon">Character Icon</label>
       <div class="char-icon-wrap">
-        <button id="charIconBtn" class="char-icon-picker" title="Pick icon">🙂</button>
+        <div id="charIconPreview" class="char-icon-preview"></div>
+        <input
+          type="file"
+          id="charIconFile"
+          class="char-icon-picker"
+          accept=".png,.jpg,.jpeg,.gif"
+          data-lang-title="char.icon_title"
+          title="Pick icon"
+        />
       </div>
+    </div>
+    <div class="char-field char-name-field">
+      <label for="charName" class="char-label" data-lang="char.name">Character Name</label>
+      <input id="charName" class="char-input" type="text" placeholder="Assistant" data-lang-placeholder="char.name_placeholder" />
     </div>
   </section>
 
   <section class="char-section">
-    <label for="charGreeting" class="char-label">Greeting</label>
+    <label for="charGreeting" class="char-label" data-lang="char.greeting">Greeting</label>
     <input
       id="charGreeting"
       class="char-input"
       type="text"
-      placeholder="Hello {username}"
+      placeholder="Hello there"
+      data-lang-placeholder="char.greeting_placeholder"
     />
   </section>
 
   <section class="char-section">
-    <label for="charPersonality" class="char-label">Personality / Memory</label>
+    <label for="charPersonality" class="char-label" data-lang="char.personality">Personality / Memory</label>
     <div class="char-textarea-wrap">
       <textarea
         id="charPersonality"
         class="char-textarea"
         placeholder="Professional, subtle, creative writing."
+        data-lang-placeholder="char.personality_placeholder"
       ></textarea>
-      <span id="charTokenCount" class="char-token-count">0 tokens</span>
+      <span id="charTokenCount" class="char-token-count" data-lang="char.tokens">0 tokens</span>
     </div>
   </section>
 </div>

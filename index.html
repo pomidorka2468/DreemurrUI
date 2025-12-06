@@ -4,11 +4,12 @@
   <meta charset="UTF-8" />
   <title>DreamUI – Chat Mode</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link rel="stylesheet" href="/static/css/themes/stardust.css" />
+  <link rel="stylesheet" href="/static/css/themes/stardust.css" id="themeStylesheet" />
   <link rel="stylesheet" href="/static/css/main.css" />
   <link rel="stylesheet" href="/static/css/chat.css" />
   <link rel="stylesheet" href="/static/css/notebook.css" />
   <link rel="stylesheet" href="/static/css/character.css" />
+  <link rel="stylesheet" href="/static/css/model.css" />
 </head>
 <body>
   <div class="app-shell" id="appShell">
@@ -46,17 +47,6 @@
               Ask questions, write ideas, and experiment with the model.
             </div>
           </div>
-          <div class="main-header-right">
-            <button class="theme-toggle" id="themeToggleBtn" aria-label="Toggle theme">
-              <span class="theme-icon">
-                <span class="sun-ray ray1"></span>
-                <span class="sun-ray ray2"></span>
-                <span class="sun-ray ray3"></span>
-                <span class="sun-core"></span>
-                <span class="moon-core"></span>
-              </span>
-            </button>
-          </div>
         </div>
       </header>
 
@@ -67,8 +57,18 @@
     </main>
   </div>
 
-  <script src="/static/js/main.js"></script>
-  <script src="/static/js/notebook.js"></script>
-  <script src="/static/js/character.js"></script>
+  <script>
+    // Cache-bust JS on every page load
+    (function () {
+      const cacheBust = Date.now();
+      const scripts = ["main", "notebook", "character", "model"];
+      scripts.forEach((name) => {
+        const s = document.createElement("script");
+        s.src = `/static/js/${name}.js?${cacheBust}`;
+        s.defer = false;
+        document.body.appendChild(s);
+      });
+    })();
+  </script>
 </body>
 </html>

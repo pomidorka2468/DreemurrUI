@@ -1,0 +1,30 @@
+<div class="chat-layout">
+  <div class="chat-history">
+    <div class="msg system">
+      <div class="msg-body" data-lang="prefs.header">
+        Settings &amp; Info
+      </div>
+    </div>
+
+    <div class="msg assistant">
+      <div class="msg-label" data-lang="prefs.title">Preferences</div>
+      <div class="msg-body">
+        <label for="themeSelect" data-lang="prefs.theme">Theme</label>
+        <select id="themeSelect" class="chat-input" style="max-width: 260px; margin-top: 6px;">
+          <!-- options injected by JS -->
+        </select>
+        <div class="status-bar" style="margin-top: 6px;">
+          <span id="themeStatus" data-lang="prefs.theme.pick">Pick a theme to apply instantly.</span>
+        </div>
+        <hr style="margin: 12px 0; border: none; border-top: 1px solid var(--divider);" />
+        <label for="languageSelect" data-lang="prefs.language">Language</label>
+        <select id="languageSelect" class="chat-input" style="max-width: 260px; margin-top: 6px;">
+          <!-- options injected by JS -->
+        </select>
+        <div class="status-bar" style="margin-top: 6px;">
+          <span id="languageStatus" data-lang="prefs.language.pick">Choose your preferred language.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

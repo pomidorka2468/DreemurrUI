@@ -10,10 +10,17 @@ from .character import fetch_character
 router = APIRouter()
 
 
+class ChatMessage(BaseModel):
+    role: str
+    content: str
+
+
 class ChatRequest(BaseModel):
     prompt: str
     model: str | None = None
     character_id: int | None = 1
+    language: str | None = None
+    history: list[ChatMessage] | None = None
 
 
 class ChatResponse(BaseModel):
@@ -31,9 +38,22 @@ async def chat(request: ChatRequest):
         else None
     )
 
+    # include recent history before the new user turn
+    history_messages = []
+    if request.history:
+        for msg in request.history:
+            role = msg.role if msg.role in ("user", "assistant") else None
+            if not role or not msg.content:
+                continue
+            history_messages.append({"role": role, "content": msg.content})
+
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
+    messages.append(
+        {"role": "system", "content": "Respond in the same language the user used."}
+    )
+    messages.extend(history_messages)
     messages.append({"role": "user", "content": request.prompt})
 
     payload = {
@@ -64,9 +84,22 @@ async def chat_stream(request: ChatRequest):
         else None
     )
 
+    # include recent history before the new user turn
+    history_messages = []
+    if request.history:
+        for msg in request.history:
+            role = msg.role if msg.role in ("user", "assistant") else None
+            if not role or not msg.content:
+                continue
+            history_messages.append({"role": role, "content": msg.content})
+
     messages = []
     if system_prompt:
         messages.append({"role": "system", "content": system_prompt})
+    messages.append(
+        {"role": "system", "content": "Respond in the same language the user used."}
+    )
+    messages.extend(history_messages)
     messages.append({"role": "user", "content": request.prompt})
 
     payload = {

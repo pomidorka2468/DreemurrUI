@@ -1,7 +1,7 @@
 <div class="chat-layout">
   <div class="chat-history" id="chatHistory">
     <div class="msg system">
-      <div class="msg-body">
+      <div class="msg-body" data-lang="chat.welcome">
         Welcome to DreamUI. This is Chat Mode.
       </div>
     </div>
@@ -11,17 +11,18 @@
     <textarea
       id="prompt"
       class="chat-input"
-      placeholder="Type your question… (Enter = send, Shift+Enter = new line)"
+      data-lang-placeholder="chat.placeholder"
+      placeholder="Type your question (Enter = send, Shift+Enter = new line)"
     ></textarea>
 
     <div class="chat-input-controls">
-      <button type="submit" class="send-btn" id="sendBtn">
+      <button type="submit" class="send-btn" id="sendBtn" data-lang="chat.send">
         Send
       </button>
     </div>
   </form>
 
   <div class="status-bar">
-    <span id="status-text">Ready</span>
+    <span id="status-text" data-lang="chat.status.ready">Ready</span>
   </div>
 </div>

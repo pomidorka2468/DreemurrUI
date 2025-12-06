@@ -1,10 +1,14 @@
 const NB_API_BASE = "/notebook";
+const NB_MODEL_STORAGE_KEY = "dreamui-active-model";
 
 (function () {
   // Expose init function globally so main.js can call it
   window.initNotebookMode = function () {
     const layout = document.querySelector(".notebook-layout");
     if (!layout) return;
+
+    const translate = (key, fallback = "") =>
+      typeof window.t === "function" ? window.t(key, fallback) : fallback || key;
 
     const textEl = document.getElementById("nbText");
     const styleEl = document.getElementById("nbStyle");
@@ -24,6 +28,24 @@ const NB_API_BASE = "/notebook";
 
     const tabs = layout.querySelectorAll(".nb-tab");
     const panels = layout.querySelectorAll(".nb-subpanel");
+
+    // apply translations to labels/buttons
+    const tabGenerate = layout.querySelector('[data-tab="generate"]');
+    const tabSave = layout.querySelector('[data-tab="save"]');
+    const tabContext = layout.querySelector('[data-tab="context"]');
+    const tabGuide = layout.querySelector('[data-tab="guide"]');
+    if (tabGenerate) tabGenerate.textContent = translate("notebook.generate", "Generate");
+    if (tabSave) tabSave.textContent = translate("notebook.save_load", "Save / Load");
+    if (tabContext) tabContext.textContent = translate("notebook.context", "Context");
+    if (tabGuide) tabGuide.textContent = translate("notebook.guide", "Guide");
+    if (revertBtn) revertBtn.textContent = translate("notebook.undo", "Undo");
+    if (stopBtn) stopBtn.textContent = translate("notebook.stop", "Stop");
+    if (contBtn) contBtn.textContent = translate("notebook.continue", "Generate");
+    if (statusEl) statusEl.textContent = translate("notebook.status.ready", "Ready");
+    if (textEl) textEl.placeholder = translate(
+      "notebook.placeholder",
+      "Write your story or notes here..."
+    );
 
     let lastState = null; // text before last AI change
     let lastAction = null; // "continue"
@@ -146,6 +168,10 @@ const NB_API_BASE = "/notebook";
         text: baseText,
         style: style || null,
       };
+      const storedModel = localStorage.getItem(NB_MODEL_STORAGE_KEY);
+      if (storedModel) {
+        payload.model = storedModel;
+      }
 
       lastState = fullText;
       lastAction = "continue";

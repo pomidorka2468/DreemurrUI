@@ -1,16 +1,16 @@
 <div class="notebook-layout nb-phone-layout">
   <div class="nb-phone-top">
     <div class="nb-tab-bar" role="tablist" aria-label="Notebook sections">
-      <button class="nb-tab nb-tab-active" data-tab="generate" role="tab" aria-selected="true">
+      <button class="nb-tab nb-tab-active" data-tab="generate" role="tab" aria-selected="true" data-lang="notebook.generate">
         Generate
       </button>
-      <button class="nb-tab" data-tab="save" role="tab" aria-selected="false">
+      <button class="nb-tab" data-tab="save" role="tab" aria-selected="false" data-lang="notebook.save_load">
         Save / Load
       </button>
-      <button class="nb-tab" data-tab="context" role="tab" aria-selected="false">
+      <button class="nb-tab" data-tab="context" role="tab" aria-selected="false" data-lang="notebook.context">
         Context
       </button>
-      <button class="nb-tab" data-tab="guide" role="tab" aria-selected="false">
+      <button class="nb-tab" data-tab="guide" role="tab" aria-selected="false" data-lang="notebook.guide">
         Guide
       </button>
     </div>
@@ -21,28 +21,29 @@
       <textarea
         id="nbText"
         class="notebook-text"
+        data-lang-placeholder="notebook.placeholder"
         placeholder="Write your story or notes here..."
       ></textarea>
 
       <div class="nb-token-counter">
-        <span id="nbTokenCount">0 tokens</span>
+        <span id="nbTokenCount" data-lang="notebook.tokens">0 tokens</span>
       </div>
     </div>
   </div>
 
   <div class="nb-phone-actions">
-    <button id="nbRevertBtn" class="nb-action-btn" title="Revert last AI action">
+    <button id="nbRevertBtn" class="nb-action-btn" title="Revert last AI action" data-lang="notebook.undo">
       Undo
     </button>
-    <button id="nbStopBtn" class="nb-action-btn" title="Stop streaming">
+    <button id="nbStopBtn" class="nb-action-btn" title="Stop streaming" data-lang="notebook.stop">
       Stop
     </button>
-    <button id="nbContinueBtn" class="nb-action-btn nb-action-primary" title="Continue">
+    <button id="nbContinueBtn" class="nb-action-btn nb-action-primary" title="Continue" data-lang="notebook.continue">
       Generate
     </button>
   </div>
 
   <div class="status-bar">
-    <span id="nbStatus">Ready</span>
+    <span id="nbStatus" data-lang="notebook.status.ready">Ready</span>
   </div>
 </div>

@@ -11,15 +11,21 @@ router = APIRouter()
 class NotebookContinueRequest(BaseModel):
     text: str
     style: str | None = None
+    model: str | None = None
+    language: str | None = None
 
 
 class NotebookRewriteRequest(BaseModel):
     selection: str
     style: str | None = None
+    model: str | None = None
+    language: str | None = None
 
 
 class NotebookSummarizeRequest(BaseModel):
     text: str
+    model: str | None = None
+    language: str | None = None
 
 
 class NotebookResponse(BaseModel):
@@ -34,6 +40,7 @@ async def notebook_continue(req: NotebookContinueRequest):
         + (f'Follow these style instructions: "{style}".\n' if style else "")
         + "Continue the story below in the same style. "
         + "If the text below ends with an unfinished sentence, do not start with a new sentence, but instead continue the existing one. "
+        + "Answer with the same language used in the story. "
         "Do not use '...' to show where you continue from "
         "Do not repeat existing text, only continue from where it stops.\n\n"
         "[STORY START]\n"
@@ -42,7 +49,7 @@ async def notebook_continue(req: NotebookContinueRequest):
     )
 
     payload = {
-        "model": DEFAULT_MODEL,
+        "model": req.model or DEFAULT_MODEL,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.8,
         "max_tokens": 513,
@@ -70,6 +77,7 @@ async def notebook_rewrite(req: NotebookRewriteRequest):
     prompt = (
         "You are a writing assistant for long-form fiction.\n"
         + (f'Follow these style instructions: "{style}".\n' if style else "")
+        + ("Respond in " + req.language + ".\n" if req.language else "")
         + "Rewrite the following passage. Keep the meaning, but improve flow, "
         "wording, and style.\n\n"
         "[PASSAGE]\n"
@@ -78,7 +86,7 @@ async def notebook_rewrite(req: NotebookRewriteRequest):
     )
 
     payload = {
-        "model": DEFAULT_MODEL,
+        "model": req.model or DEFAULT_MODEL,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.7,
         "max_tokens": 513,
@@ -97,13 +105,14 @@ async def notebook_rewrite(req: NotebookRewriteRequest):
 @router.post("/notebook/summarize", response_model=NotebookResponse)
 async def notebook_summarize(req: NotebookSummarizeRequest):
     prompt = (
-        "Summarize the following story in concise bullet points and then in one "
+        ("Respond in " + req.language + ".\n" if req.language else "")
+        + "Summarize the following story in concise bullet points and then in one "
         "short paragraph:\n\n"
         f"{req.text}"
     )
 
     payload = {
-        "model": DEFAULT_MODEL,
+        "model": req.model or DEFAULT_MODEL,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.3,
         "max_tokens": 513,

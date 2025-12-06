@@ -1,0 +1,39 @@
+<div class="model-layout">
+  <section class="model-panel model-active-panel">
+    <div class="panel-head">
+      <div>
+        <div class="panel-title" data-lang="model.active">Active model</div>
+        <div class="panel-subtitle" data-lang="model.active_subtitle">Used for chat and notebook calls.</div>
+      </div>
+      <div class="model-hero-actions">
+        <button class="model-btn" id="modelRefreshBtn" data-lang="model.refresh">Refresh list</button>
+        <button class="model-btn model-btn-ghost" id="modelEjectBtn" data-lang="model.eject_active">Eject active</button>
+        <span class="model-chip" id="modelSourceTag" data-lang="model.checking">Checking...</span>
+        <span class="model-chip model-chip-ghost" id="modelCountTag" data-lang="model.count">0 models</span>
+      </div>
+    </div>
+    <div id="activeModelCard" class="model-active-card">
+      <span data-lang="model.current_none">No model selected yet. Pick one from the list to make it the default.</span>
+    </div>
+  </section>
+
+  <div class="model-grid">
+    <section class="model-panel">
+      <div class="panel-head">
+        <div>
+          <div class="panel-title" data-lang="model.available">Available models</div>
+          <div class="panel-subtitle" data-lang="model.available_subtitle">
+            Pulled from LM Studio at 127.0.0.1:1234/v1/models (falls back to a local list if offline).
+          </div>
+        </div>
+      </div>
+
+      <div class="model-list" id="modelList"></div>
+    </section>
+
+  </div>
+
+  <div class="status-bar">
+    <span id="modelStatus" data-lang="chat.status.ready">Ready</span>
+  </div>
+</div>

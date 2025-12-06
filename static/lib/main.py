@@ -6,7 +6,8 @@ from fastapi.staticfiles import StaticFiles
 
 from .chat import router as chat_router
 from .notebook import router as notebook_router
-from .character import fetch_character, list_characters
+from .character import fetch_character, list_characters, router as character_files_router
+from .preferences import router as preferences_router
 
 app = FastAPI()
 
@@ -35,3 +36,5 @@ def get_characters():
 
 app.include_router(chat_router)
 app.include_router(notebook_router)
+app.include_router(preferences_router)
+app.include_router(character_files_router)

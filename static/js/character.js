@@ -1,31 +1,32 @@
-﻿const CHAR_STORAGE_KEY = "dreamui-characters";
-const ACTIVE_CHAR_KEY = "dreamui-active-character";
+const CHAR_STORAGE_KEY = "dreamui-characters";
+const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
 
 (function () {
-  const iconOptions = [
-    "/static/icons/chat.svg",
-    "/static/icons/character_info.svg",
-    "/static/icons/pen.svg",
-    "/static/icons/book.svg",
-    "/static/icons/cube.svg",
-    "/static/icons/info.svg",
-  ];
+  const DEFAULT_ICON = "/static/icons/character_info.svg";
 
-  function loadStored() {
+  async function loadFromFiles() {
     try {
-      const raw = localStorage.getItem(CHAR_STORAGE_KEY);
-      if (!raw) return null;
-      return JSON.parse(raw);
-    } catch {
-      return null;
+      const res = await fetch("/characters", { cache: "no-cache" });
+      if (!res.ok) return null;
+      const data = await res.json();
+      if (Array.isArray(data) && data.length) {
+        return data;
+      }
+    } catch (err) {
+      console.error("Character fetch failed", err);
     }
+    return null;
   }
 
-  function saveStored(list) {
+  async function saveToFile(payload) {
     try {
-      localStorage.setItem(CHAR_STORAGE_KEY, JSON.stringify(list));
+      await fetch("/characters/file", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
     } catch (err) {
-      console.error("Failed to save characters", err);
+      console.error("Failed to save character file", err);
     }
   }
 
@@ -33,7 +34,7 @@ const ACTIVE_CHAR_KEY = "dreamui-active-character";
     {
       id: 1,
       name: "Assistant",
-      icon: "/static/icons/character_info.svg",
+      icon: DEFAULT_ICON,
       greeting: "Hello {username}",
       personality: "Professional, subtle, creative writing.",
     },
@@ -54,42 +55,43 @@ const ACTIVE_CHAR_KEY = "dreamui-active-character";
     if (!selectEl || !nameEl || !greetEl || !personalityEl) return;
 
     let characters = sample.slice();
-    let currentId = localStorage.getItem(ACTIVE_CHAR_KEY) || sample[0].id;
+    let currentId = localStorage.getItem(CHAR_ACTIVE_STORAGE_KEY) || sample[0].id;
 
     async function loadInitial() {
-      const stored = loadStored();
-      if (stored?.length) {
-        characters = stored;
-      }
-      try {
-        const res = await fetch("/characters", { cache: "no-cache" });
-        if (res.ok) {
-          const data = await res.json();
-          if (Array.isArray(data) && data.length) {
-            characters = data.map((c) => {
-              const icon =
-                typeof c.icon === "string" && c.icon.endsWith(".svg")
-                  ? c.icon
-                  : iconOptions[0];
-              return { ...c, icon };
-            });
-          }
-        }
-      } catch (err) {
-        console.error("Character fetch failed", err);
+      const files = await loadFromFiles();
+      if (files?.length) {
+        characters = files.map((c) => {
+          const icon =
+            typeof c.icon === "string" && c.icon.length
+              ? c.icon
+              : typeof c.icon_path === "string" && c.icon_path.length
+              ? c.icon_path
+              : DEFAULT_ICON;
+          return { ...c, icon };
+        });
       }
       if (!characters.length) {
         characters = sample.slice();
       }
       currentId =
-        localStorage.getItem(ACTIVE_CHAR_KEY) || characters[0]?.id || currentId;
-      saveStored(characters);
+        localStorage.getItem(CHAR_ACTIVE_STORAGE_KEY) || characters[0]?.id || currentId;
     }
 
     function setIconButton(iconPath) {
-      if (!iconBtn) return;
-      iconBtn.dataset.icon = iconPath;
-      iconBtn.innerHTML = `<img src="${iconPath}" alt="icon" />`;
+      // keep a preview next to the file input
+      const fileInput = document.getElementById("charIconFile");
+      const preview = document.getElementById("charIconPreview");
+      if (preview) {
+        preview.innerHTML = "";
+        const img = document.createElement("img");
+        img.src = iconPath;
+        img.alt = "icon";
+        img.className = "char-icon-img";
+        preview.appendChild(img);
+      }
+      if (fileInput) {
+        fileInput.dataset.icon = iconPath;
+      }
     }
 
     function renderSelect() {
@@ -118,22 +120,25 @@ const ACTIVE_CHAR_KEY = "dreamui-active-character";
       nameEl.value = current.name || "";
       greetEl.value = current.greeting || "";
       personalityEl.value = current.personality || "";
-      setIconButton(current.icon || iconOptions[0]);
+      setIconButton(current.icon || current.icon_path || DEFAULT_ICON);
       updateTokenCount();
     }
 
     function persist() {
-      saveStored(characters);
+      // keep in-memory only; file save handled on explicit save
     }
 
     function upsertCurrent() {
       const idx = characters.findIndex((c) => String(c.id) === String(currentId));
+      const current = characters.find((c) => String(c.id) === String(currentId));
+      const iconPath = document.getElementById("charIconFile")?.dataset.icon || current?.icon || current?.icon_path || DEFAULT_ICON;
       const payload = {
         id: currentId,
         name: nameEl.value.trim() || "Unnamed",
         greeting: greetEl.value.trim(),
         personality: personalityEl.value.trim(),
-        icon: (iconBtn && iconBtn.dataset.icon) || iconOptions[0],
+        icon: iconPath,
+        icon_path: iconPath,
       };
       if (idx >= 0) {
         characters[idx] = payload;
@@ -155,13 +160,29 @@ const ACTIVE_CHAR_KEY = "dreamui-active-character";
       updateTokenCount();
     });
 
-    iconBtn.addEventListener("click", () => {
-      const current = iconBtn.dataset.icon || iconOptions[0];
-      const idx = iconOptions.indexOf(current);
-      const next = iconOptions[(idx + 1) % iconOptions.length];
-      setIconButton(next);
-      upsertCurrent();
-    });
+    const iconFileInput = document.getElementById("charIconFile");
+    if (iconFileInput) {
+      iconFileInput.addEventListener("change", async (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        const form = new FormData();
+        form.append("file", file);
+        try {
+          const res = await fetch("/characters/file/upload_icon", {
+            method: "POST",
+            body: form,
+          });
+          if (!res.ok) throw new Error("Upload failed");
+          const data = await res.json();
+          if (data?.path) {
+            setIconButton(data.path);
+            upsertCurrent();
+          }
+        } catch (err) {
+          console.error("Icon upload failed", err);
+        }
+      });
+    }
 
     if (newBtn) {
       newBtn.addEventListener("click", () => {
@@ -169,7 +190,7 @@ const ACTIVE_CHAR_KEY = "dreamui-active-character";
         const newChar = {
           id: newId,
           name: "New Character",
-          icon: iconOptions[1],
+          icon: DEFAULT_ICON,
           greeting: "Hello {username}",
           personality: "",
         };
@@ -182,16 +203,23 @@ const ACTIVE_CHAR_KEY = "dreamui-active-character";
     }
 
     if (deleteBtn) {
-      deleteBtn.addEventListener("click", () => {
+      deleteBtn.addEventListener("click", async () => {
         if (!currentId) return;
-        characters = characters.filter((c) => String(c.id) !== String(currentId));
+        const targetId = String(currentId);
+        try {
+          await fetch(`/characters/file/${encodeURIComponent(targetId)}`, {
+            method: "DELETE",
+          });
+        } catch (err) {
+          console.error("Failed to delete character file", err);
+        }
+        characters = characters.filter((c) => String(c.id) !== targetId);
         if (!characters.length) {
           characters = sample.slice();
         }
         currentId = characters[0].id;
         renderSelect();
         loadCurrent();
-        persist();
       });
     }
 
@@ -203,15 +231,22 @@ const ACTIVE_CHAR_KEY = "dreamui-active-character";
           setTimeout(() => (loadBtn.textContent = "Load"), 800);
           return;
         }
-        localStorage.setItem(ACTIVE_CHAR_KEY, String(numericId));
+        localStorage.setItem(CHAR_ACTIVE_STORAGE_KEY, String(numericId));
+        if (typeof window.savePreferences === "function") {
+          window.savePreferences({ character_id: numericId });
+        }
         loadBtn.textContent = "Loaded";
         setTimeout(() => (loadBtn.textContent = "Load"), 800);
       });
     }
 
     if (saveBtn) {
-      saveBtn.addEventListener("click", () => {
+      saveBtn.addEventListener("click", async () => {
         upsertCurrent();
+        const current = characters.find((c) => String(c.id) === String(currentId));
+        if (current) {
+          await saveToFile(current);
+        }
         saveBtn.textContent = "Saved";
         setTimeout(() => (saveBtn.textContent = "Save"), 800);
       });

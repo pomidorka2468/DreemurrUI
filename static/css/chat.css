@@ -48,33 +48,47 @@
 }
 
 .msg-label {
-  font-size: 0.75rem;
+  font-size: 0.85rem;
   text-transform: uppercase;
   letter-spacing: 0.12em;
   color: var(--text-muted);
   margin-bottom: 3px;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 8px;
 }
 
 .msg-label-assistant {
   text-transform: none;
   letter-spacing: 0.05em;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
 .msg-label-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 18px;
-  height: 18px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: var(--surface-highlight);
+  flex-shrink: 0;
+  object-fit: cover;
 }
 
 .msg-label-icon img {
-  width: 18px;
-  height: 18px;
+  width: 100%;
+  height: 100%;
   display: block;
+  object-fit: cover;
+}
+
+.msg-label-assistant span:last-child {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-main);
 }
 
 .msg-body {

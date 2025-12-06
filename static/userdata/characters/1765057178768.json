@@ -1,0 +1,8 @@
+{
+  "id": 1765057178768,
+  "name": "Frisk",
+  "icon": "/static/userdata/character_icons/Frisk_77a14d5d.png",
+  "greeting": "Hello {username}!",
+  "personality": "Just Frisk",
+  "icon_path": "/static/userdata/character_icons/Frisk_77a14d5d.png"
+}

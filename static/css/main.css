@@ -48,6 +48,14 @@ body {
   padding-inline: 8px;
 }
 
+@media (min-width: 960px) {
+  .sidebar {
+    flex: 0 0 var(--sidebar-width);
+    width: var(--sidebar-width);
+    padding-inline: 8px;
+  }
+}
+
 /* Sidebar contents */
 
 .mode-list {

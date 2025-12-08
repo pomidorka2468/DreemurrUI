@@ -2,10 +2,13 @@ from fastapi import APIRouter
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel
 import httpx
+import json
 
 LM_URL = "http://127.0.0.1:1234/v1/chat/completions"
 DEFAULT_MODEL = "dolphin3.0-llama3.1-8b"
 from .character import fetch_character
+from .archive import save_chat_archive
+from .world_info import list_enabled_world_entries
 
 router = APIRouter()
 
@@ -21,19 +24,37 @@ class ChatRequest(BaseModel):
     character_id: int | None = 1
     language: str | None = None
     history: list[ChatMessage] | None = None
+    archive_id: str | None = None
 
 
 class ChatResponse(BaseModel):
     reply: str
+    archive_id: str | None = None
 
 
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
     character = fetch_character(request.character_id or 1)
+    world_entries = list_enabled_world_entries()
+    world_context = ""
+    if world_entries:
+        joined = "\n\n".join(
+            f"- {item.get('name')}: {item.get('description') or ''}" for item in world_entries
+        )
+        world_context = "World context:\n" + joined
     system_prompt = (
-        f"You are {character['name']}."
-        f" Greeting: {character.get('greeting') or ''}."
-        f" Persona: {character.get('personality') or ''}."
+        (
+            "You are roleplaying as {name}. Stay fully in character using their voice, goals, and mannerisms.\n"
+            "Greeting: {greeting}\n"
+            "Persona: {persona}\n"
+            "Keep replies as immersive dialogue with light action cues, using present tense and emotion-rich tone. "
+            "Use *italics* for actions and stage directions, and **bold** for spoken lines or strongly voiced text; do not escape or alter these markers. "
+            "Do not break character or explain that you are an assistant."
+        ).format(
+            name=character["name"],
+            greeting=character.get("greeting") or "",
+            persona=character.get("personality") or "",
+        )
         if character
         else None
     )
@@ -53,6 +74,8 @@ async def chat(request: ChatRequest):
     messages.append(
         {"role": "system", "content": "Respond in the same language the user used."}
     )
+    if world_context:
+        messages.append({"role": "system", "content": world_context})
     messages.extend(history_messages)
     messages.append({"role": "user", "content": request.prompt})
 
@@ -70,16 +93,42 @@ async def chat(request: ChatRequest):
         data = response.json()
 
     reply_text = data["choices"][0]["message"]["content"]
-    return ChatResponse(reply=reply_text)
+
+    # Persist archive entry (chat) after reply
+    full_history = history_messages + [
+        {"role": "user", "content": request.prompt},
+        {"role": "assistant", "content": reply_text},
+    ]
+    archive_id = save_chat_archive(
+        request.archive_id, full_history, request.model or DEFAULT_MODEL, request.character_id
+    )
+
+    return ChatResponse(reply=reply_text, archive_id=archive_id)
 
 
 @router.post("/chat/stream")
 async def chat_stream(request: ChatRequest):
     character = fetch_character(request.character_id or 1)
+    world_entries = list_enabled_world_entries()
+    world_context = ""
+    if world_entries:
+        joined = "\n\n".join(
+            f"- {item.get('name')}: {item.get('description') or ''}" for item in world_entries
+        )
+        world_context = "World context:\n" + joined
     system_prompt = (
-        f"You are {character['name']}."
-        f" Greeting: {character.get('greeting') or ''}."
-        f" Persona: {character.get('personality') or ''}."
+        (
+            "You are roleplaying as {name}. Stay fully in character using their voice, goals, and mannerisms.\n"
+            "Greeting: {greeting}\n"
+            "Persona: {persona}\n"
+            "Keep replies as immersive dialogue with light action cues, using present tense and emotion-rich tone. "
+            "Use *italics* for actions and stage directions, and **bold** for spoken lines or strongly voiced text; do not escape or alter these markers. "
+            "Do not break character or explain that you are an assistant."
+        ).format(
+            name=character["name"],
+            greeting=character.get("greeting") or "",
+            persona=character.get("personality") or "",
+        )
         if character
         else None
     )
@@ -99,6 +148,8 @@ async def chat_stream(request: ChatRequest):
     messages.append(
         {"role": "system", "content": "Respond in the same language the user used."}
     )
+    if world_context:
+        messages.append({"role": "system", "content": world_context})
     messages.extend(history_messages)
     messages.append({"role": "user", "content": request.prompt})
 
@@ -111,6 +162,7 @@ async def chat_stream(request: ChatRequest):
     }
 
     async def event_generator():
+        assistant_buffer = ""
         async with httpx.AsyncClient(timeout=None) as client:
             async with client.stream("POST", LM_URL, json=payload) as response:
                 async for line in response.aiter_lines():
@@ -122,7 +174,21 @@ async def chat_stream(request: ChatRequest):
                         chunk = line[6:].strip()
                         if chunk == "[DONE]":
                             break
+                        try:
+                            data = json.loads(chunk)
+                            delta = data.get("choices", [{}])[0].get("delta", {}).get("content")
+                            if delta:
+                                assistant_buffer += delta
+                        except Exception:
+                            pass
                         # send raw JSON chunk to frontend
                         yield chunk + "\n"
+
+        # after stream finishes, save archive entry
+        full_history = history_messages + [
+            {"role": "user", "content": request.prompt},
+            {"role": "assistant", "content": assistant_buffer},
+        ]
+        save_chat_archive(request.archive_id, full_history, request.model or DEFAULT_MODEL, request.character_id)
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")

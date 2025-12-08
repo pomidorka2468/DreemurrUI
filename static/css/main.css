@@ -111,6 +111,12 @@ body {
     brightness(93%) contrast(95%);
 }
 
+.mode-archive {
+  --icon-bg: rgba(59, 130, 246, 0.16);
+  --icon-filter: invert(40%) sepia(88%) saturate(1440%) hue-rotate(197deg)
+    brightness(95%) contrast(96%);
+}
+
 .mode-characters {
   --icon-bg: rgba(245, 158, 11, 0.18);
   --icon-filter: invert(72%) sepia(88%) saturate(566%) hue-rotate(352deg)

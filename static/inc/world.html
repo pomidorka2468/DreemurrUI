@@ -1,0 +1,102 @@
+<div class="world-layout">
+  <header class="world-header">
+    <div class="world-headings" aria-live="polite">
+      <div class="world-title" id="worldPageTitle"></div>
+    </div>
+    <div class="world-header-actions">
+      <button id="worldAddBtn" class="world-btn world-btn-primary" data-lang="world.new">New entry</button>
+      <button
+        id="worldCopyBtn"
+        class="world-btn world-btn-ghost"
+        data-lang="world.copy_enabled"
+        data-lang-title="world.copy_enabled_title"
+        title="Copy enabled entries to clipboard"
+      >
+        Copy enabled
+      </button>
+    </div>
+  </header>
+
+  <div class="world-grid">
+    <section class="world-panel world-list-panel">
+      <div class="world-list-header">
+        <div class="world-list-title" data-lang="world.list_title">Entries</div>
+        <label
+          class="world-toggle"
+          title="Show or hide disabled entries"
+          data-lang-title="world.show_disabled_title"
+        >
+          <input type="checkbox" id="worldShowDisabled" checked />
+          <span class="world-toggle-deco" aria-hidden="true"></span>
+          <span class="world-toggle-label" data-lang="world.show_disabled">Show disabled</span>
+        </label>
+      </div>
+      <div id="worldList" class="world-list" role="list"></div>
+      <div id="worldEmpty" class="world-empty" data-lang="world.empty" hidden>No entries yet.</div>
+    </section>
+
+    <section class="world-panel world-editor-panel">
+      <div class="world-field">
+        <label for="worldName" data-lang="world.name">Name</label>
+        <input
+          id="worldName"
+          class="world-input"
+          type="text"
+          placeholder="Town archives"
+          data-lang-placeholder="world.name_placeholder"
+        />
+      </div>
+
+      <div class="world-field world-field-inline">
+        <span data-lang="world.enabled">Enabled</span>
+        <label class="world-toggle">
+          <input type="checkbox" id="worldEnabled" />
+          <span class="world-toggle-deco" aria-hidden="true"></span>
+        </label>
+      </div>
+
+      <div class="world-field">
+        <label for="worldDescription" data-lang="world.description">Description</label>
+        <textarea
+          id="worldDescription"
+          class="world-textarea"
+          placeholder="Short reminder about this location, rule, or character..."
+          data-lang-placeholder="world.description_placeholder"
+        ></textarea>
+        <div class="world-hint-row">
+          <span class="world-hint" data-lang="world.hint">Enabled entries are great for quick context drops.</span>
+          <div class="world-counters">
+            <span id="worldTokenCount" class="world-counter">0 tokens</span>
+            <span id="worldCharCount" class="world-counter">0 chars</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="world-actions-row">
+        <button
+          id="worldDeleteBtn"
+          class="world-btn world-btn-ghost"
+          data-lang="world.delete"
+          data-lang-title="world.delete_title"
+          title="Delete entry"
+        >
+          Delete
+        </button>
+        <button
+          id="worldSaveBtn"
+          class="world-btn world-btn-primary"
+          data-lang="world.save"
+          data-lang-title="world.save_title"
+          title="Save changes"
+        >
+          Save
+        </button>
+      </div>
+
+      <div class="world-status-bar">
+        <span id="worldStatus" data-lang="world.status.ready">Ready</span>
+        <span id="worldEnabledCount" class="world-status-right"></span>
+      </div>
+    </section>
+  </div>
+</div>

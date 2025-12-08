@@ -1,0 +1,24 @@
+{
+  "id": "chat-1765143614917",
+  "type": "chat",
+  "name": "hoi Az",
+  "preview": "I'm so glad to see you again, Chara! I've missed our little adventures together. *smiles warmly* Do you have any fun plans for today? Maybe we can try out that new game we found yesterday?",
+  "model": "dolphin3.0-llama3.1-8b",
+  "updated_at": 1765145830,
+  "created_at": 1765144085,
+  "messages": [
+    {
+      "role": "assistant",
+      "content": "Hi, Chara."
+    },
+    {
+      "role": "user",
+      "content": "Hi Azzy"
+    },
+    {
+      "role": "assistant",
+      "content": "I'm so glad to see you again, Chara! I've missed our little adventures together. *smiles warmly* Do you have any fun plans for today? Maybe we can try out that new game we found yesterday?"
+    }
+  ],
+  "character_id": 1765057277751
+}

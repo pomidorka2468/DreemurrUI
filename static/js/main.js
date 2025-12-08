@@ -25,9 +25,14 @@ const modesMeta = {
       "LM Studio Model Manager — Pick which model DreamUI should use, then load or eject it from LM Studio.",
     file: "/static/inc/model.html",
   },
+  archive: {
+    title: "Archive",
+    subtitle: "Browse saved chats, notebook stories, and roleplay threads.",
+    file: "/static/inc/archive.html",
+  },
   world: {
-    title: "World / Story Context",
-    subtitle: "Keep lore and background context for your stories.",
+    title: "World Info",
+    subtitle: "Keep lightweight lore notes and toggle which ones are active.",
     file: "/static/inc/world.html",
   },
   characters: {
@@ -195,6 +200,8 @@ function applyModeTranslations() {
     "mode.model.subtitle",
     modesMeta["model-choice"].subtitle
   );
+  modesMeta.archive.title = t("mode.archive.title", modesMeta.archive.title);
+  modesMeta.archive.subtitle = t("mode.archive.subtitle", modesMeta.archive.subtitle);
   modesMeta.world.title = t("mode.world.title", modesMeta.world.title);
   modesMeta.world.subtitle = t("mode.world.subtitle", modesMeta.world.subtitle);
   modesMeta.characters.title = t("mode.characters.title", modesMeta.characters.title);
@@ -218,6 +225,7 @@ async function initI18n() {
     chat: "nav.chat",
     notebook: "nav.notebook",
     "model-choice": "nav.model",
+    archive: "nav.archive",
     world: "nav.world",
     characters: "nav.characters",
     stats: "nav.stats",
@@ -420,6 +428,13 @@ async function loadMode(modeId) {
   ) {
     window.initModelMode();
   } else if (
+    modeId === "archive" &&
+    typeof window.initArchiveMode === "function"
+  ) {
+    window.initArchiveMode();
+  } else if (modeId === "world" && typeof window.initWorldMode === "function") {
+    window.initWorldMode();
+  } else if (
     modeId === "characters" &&
     typeof window.initCharactersMode === "function"
   ) {
@@ -500,12 +515,20 @@ window.initStatsMode = function () {
 // ----- chat mode JS -----
 
 function initChatMode() {
+  const chatSessions = (window._chatSessions = window._chatSessions || {});
+  let messageSeq = 0;
   const chatHistory = document.getElementById("chatHistory");
   const chatForm = document.getElementById("chatForm");
   const promptEl = document.getElementById("prompt");
   const sendBtn = document.getElementById("sendBtn");
   const statusText = document.getElementById("status-text");
-  const conversation = [];
+  const storedId = parseInt(localStorage.getItem(ACTIVE_CHAR_KEY) || "1", 10);
+  const currentCharacterId = Number.isFinite(storedId) ? storedId : 1;
+  const archiveKey = `dreamui-chat-archive-${currentCharacterId}`;
+  let currentArchiveId = localStorage.getItem(archiveKey) || null;
+  const RESTORE_KEY = "dreamui-restore-chat";
+  let restoredFromArchive = false;
+  let conversation = [];
   let currentCharacter = {
     id: 1,
     name: "Assistant",
@@ -524,6 +547,89 @@ function initChatMode() {
   }
   if (statusText) {
     statusText.textContent = t("chat.status.ready", statusText.textContent || "Ready");
+  }
+
+  function nextMessageId() {
+    messageSeq += 1;
+    return `msg-${Date.now()}-${messageSeq}`;
+  }
+
+  function loadConversationHistory(charId) {
+    const key = String(charId || "default");
+    const existing = chatSessions[key];
+    if (Array.isArray(existing)) return existing;
+    chatSessions[key] = [];
+    return chatSessions[key];
+  }
+
+  function saveConversationHistory(charId, history) {
+    const key = String(charId || "default");
+    chatSessions[key] = history;
+  }
+
+  function renderExistingConversation() {
+    if (!conversation.length) return;
+    conversation.forEach((turn) => {
+      if (!turn || !turn.role || !turn.content) return;
+      addMessage(turn);
+    });
+  }
+
+  // load persisted conversation before rendering
+  conversation = loadConversationHistory(currentCharacterId);
+  if (conversation.length > messageSeq) {
+    messageSeq = conversation.length;
+  }
+  consumePendingRestore();
+
+  window.addEventListener("dreamui-restore-chat", () => {
+    consumePendingRestore();
+  });
+
+  window.addEventListener("storage", (e) => {
+    if (e.key === RESTORE_KEY) {
+      consumePendingRestore();
+    }
+  });
+
+  function consumePendingRestore() {
+    const raw = localStorage.getItem(RESTORE_KEY);
+    if (!raw) return;
+    localStorage.removeItem(RESTORE_KEY);
+    try {
+      const data = JSON.parse(raw);
+      if (Array.isArray(data.messages)) {
+        conversation = data.messages.map((m, idx) => ({
+          id: m.id || nextMessageId() || `msg-${Date.now()}-${idx + 1}`,
+          role: m.role,
+          content: m.content,
+        }));
+        messageSeq = conversation.length;
+        currentArchiveId = data.archive_id || currentArchiveId;
+        restoredFromArchive = true;
+        saveConversationHistory(currentCharacterId, conversation);
+        chatHistory.innerHTML = "";
+      }
+      if (data.model) {
+        localStorage.setItem(ACTIVE_MODEL_KEY, data.model);
+      }
+      if (data.character_id) {
+        localStorage.setItem(ACTIVE_CHAR_KEY, String(data.character_id));
+      }
+    } catch (err) {
+      console.error("Failed to restore chat", err);
+    }
+  }
+
+  function renderInlineFormatting(text) {
+    if (!text) return "";
+    const escaped = text
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;");
+    const withBold = escaped.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
+    const withItalics = withBold.replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*(?!\*)/g, "$1<em>$2</em>");
+    return withItalics;
   }
 
   function buildIconElement(iconVal, name) {
@@ -547,14 +653,17 @@ function initChatMode() {
     return spanIcon;
   }
 
-  function addMessage(role, text) {
+  function addMessage(turn) {
+    if (!turn) return null;
+    const { role, content, id } = turn;
     const msg = document.createElement("div");
     msg.className = "msg " + role;
+    if (id) msg.dataset.mid = id;
 
     if (role === "system") {
       const body = document.createElement("div");
       body.className = "msg-body";
-      body.textContent = text;
+      body.innerHTML = renderInlineFormatting(content);
       msg.appendChild(body);
     } else {
       const label = document.createElement("div");
@@ -573,23 +682,145 @@ function initChatMode() {
 
       const body = document.createElement("div");
       body.className = "msg-body";
-      body.textContent = text;
+      body.innerHTML = renderInlineFormatting(content);
+
+      const actions = document.createElement("div");
+      actions.className = "msg-actions";
+      if (role === "user" || role === "assistant") {
+        const editBtn = document.createElement("button");
+        editBtn.type = "button";
+        editBtn.className = "msg-action-btn edit";
+        editBtn.textContent = t("chat.edit", "Edit");
+        editBtn.dataset.action = "edit";
+
+        const saveBtn = document.createElement("button");
+        saveBtn.type = "button";
+        saveBtn.className = "msg-action-btn save";
+        saveBtn.textContent = t("chat.save", "Save");
+        saveBtn.dataset.action = "save";
+
+        const cancelBtn = document.createElement("button");
+        cancelBtn.type = "button";
+        cancelBtn.className = "msg-action-btn cancel";
+        cancelBtn.textContent = t("chat.cancel", "Cancel");
+        cancelBtn.dataset.action = "cancel";
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.type = "button";
+        deleteBtn.className = "msg-action-btn delete";
+        deleteBtn.textContent = t("chat.delete", "Delete");
+        deleteBtn.dataset.action = "delete";
+
+        actions.appendChild(editBtn);
+        actions.appendChild(saveBtn);
+        actions.appendChild(cancelBtn);
+        actions.appendChild(deleteBtn);
+      }
 
       msg.appendChild(label);
       msg.appendChild(body);
+      msg.appendChild(actions);
     }
 
     chatHistory.appendChild(msg);
     chatHistory.scrollTop = chatHistory.scrollHeight;
-    return msg;
+    return { msg, bodyEl: msg.querySelector(".msg-body") };
   }
+
+  function findTurnIndexById(mid) {
+    return conversation.findIndex((t) => t && t.id === mid);
+  }
+
+  function updateMessageBody(mid, newContent) {
+    const body = chatHistory.querySelector(`[data-mid="${mid}"] .msg-body`);
+    if (body) {
+      body.innerHTML = renderInlineFormatting(newContent || "");
+    }
+  }
+
+  function handleEditMessage(mid) {
+    const idx = findTurnIndexById(mid);
+    if (idx === -1) return;
+    const turn = conversation[idx];
+    const msgEl = chatHistory.querySelector(`[data-mid="${mid}"]`);
+    if (!msgEl) return;
+    if (msgEl.classList.contains("editing")) return;
+    const body = msgEl.querySelector(".msg-body");
+    if (!body) return;
+
+    const textarea = document.createElement("textarea");
+    textarea.className = "msg-edit-area";
+    textarea.value = turn.content || "";
+    textarea.rows = Math.min(8, Math.max(2, textarea.value.split("\n").length));
+
+    body.innerHTML = "";
+    body.appendChild(textarea);
+    msgEl.classList.add("editing");
+    textarea.focus();
+  }
+
+  function handleDeleteMessage(mid) {
+    const idx = findTurnIndexById(mid);
+    if (idx === -1) return;
+    conversation.splice(idx, 1);
+    const el = chatHistory.querySelector(`[data-mid="${mid}"]`);
+    if (el) el.remove();
+    saveConversationHistory(currentCharacterId, conversation);
+  }
+
+  function handleSaveMessage(mid) {
+    const idx = findTurnIndexById(mid);
+    if (idx === -1) return;
+    const msgEl = chatHistory.querySelector(`[data-mid="${mid}"]`);
+    if (!msgEl) return;
+    const textarea = msgEl.querySelector(".msg-edit-area");
+    if (!textarea) return;
+    const trimmed = textarea.value.trim();
+    if (!trimmed) {
+      handleDeleteMessage(mid);
+      return;
+    }
+    conversation[idx].content = trimmed;
+    updateMessageBody(mid, trimmed);
+    msgEl.classList.remove("editing");
+    saveConversationHistory(currentCharacterId, conversation);
+  }
+
+  function handleCancelEdit(mid) {
+    const idx = findTurnIndexById(mid);
+    if (idx === -1) return;
+    const msgEl = chatHistory.querySelector(`[data-mid="${mid}"]`);
+    if (!msgEl) return;
+    const turn = conversation[idx];
+    updateMessageBody(mid, turn.content);
+    msgEl.classList.remove("editing");
+  }
+
+  chatHistory.addEventListener("click", (e) => {
+    const btn = e.target.closest(".msg-action-btn");
+    if (!btn) return;
+    const action = btn.dataset.action;
+    const msgEl = btn.closest(".msg");
+    const mid = msgEl?.dataset.mid;
+    if (!mid) return;
+    if (action === "edit") {
+      handleEditMessage(mid);
+    } else if (action === "save") {
+      handleSaveMessage(mid);
+    } else if (action === "cancel") {
+      handleCancelEdit(mid);
+    } else if (action === "delete") {
+      handleDeleteMessage(mid);
+    }
+  });
 
   async function sendMessage() {
     const prompt = promptEl.value.trim();
     if (!prompt) return;
 
     // user bubble
-    addMessage("user", prompt);
+    const userMsg = { id: nextMessageId(), role: "user", content: prompt };
+    addMessage(userMsg);
     promptEl.value = "";
     promptEl.focus();
 
@@ -599,7 +830,11 @@ function initChatMode() {
     const payload = {
       prompt,
       character_id: parseInt(currentCharacter.id, 10) || 1,
-      history: conversation.slice(),
+      history: conversation.map((turn) => ({
+        role: turn.role,
+        content: turn.content,
+      })),
+      archive_id: currentArchiveId,
     };
     const detectedLang =
       detectLanguageFromText(prompt) ||
@@ -611,11 +846,19 @@ function initChatMode() {
     if (storedModel) {
       payload.model = storedModel;
     }
+    if (!currentArchiveId) {
+      currentArchiveId = `chat-${Date.now()}`;
+      localStorage.setItem(archiveKey, currentArchiveId);
+      payload.archive_id = currentArchiveId;
+    }
 
     // create assistant bubble now, fill it as tokens arrive
-    const assistantMsg = addMessage("assistant", "");
-    const bodyEl = assistantMsg.querySelector(".msg-body");
-    conversation.push({ role: "user", content: prompt });
+    const assistantTurn = { id: nextMessageId(), role: "assistant", content: "" };
+    const assistantRendered = addMessage(assistantTurn);
+    const bodyEl = assistantRendered?.bodyEl;
+    conversation.push(userMsg);
+    saveConversationHistory(currentCharacterId, conversation);
+    let assistantBuffer = "";
 
     try {
       const res = await fetch(API_URL, {
@@ -651,7 +894,9 @@ function initChatMode() {
             const json = JSON.parse(trimmed);
             const delta = json.choices?.[0]?.delta?.content;
             if (delta) {
-              bodyEl.textContent += delta;
+              assistantBuffer += delta;
+              assistantTurn.content = assistantBuffer;
+              if (bodyEl) bodyEl.innerHTML = renderInlineFormatting(assistantBuffer);
               chatHistory.scrollTop = chatHistory.scrollHeight;
             }
           } catch {
@@ -661,10 +906,14 @@ function initChatMode() {
       }
 
       statusText.textContent = t("chat.status.ready", "Ready");
-      conversation.push({ role: "assistant", content: bodyEl.textContent });
+      assistantTurn.content = assistantBuffer;
+      conversation.push(assistantTurn);
+      saveConversationHistory(currentCharacterId, conversation);
+      localStorage.setItem("dreamui-archive-refresh", String(Date.now()));
+      window.dispatchEvent(new Event("dreamui-archive-refresh"));
     } catch (err) {
       console.error(err);
-      addMessage("system", "Stream error: " + err.message);
+      addMessage({ id: nextMessageId(), role: "system", content: "Stream error: " + err.message });
       statusText.textContent = t("chat.status.error", "Error");
     } finally {
       sendBtn.disabled = false;
@@ -687,11 +936,13 @@ function initChatMode() {
     const storedId = localStorage.getItem(ACTIVE_CHAR_KEY);
     const parsedId = parseInt(storedId || "1", 10);
     const targetId = Number.isFinite(parsedId) ? parsedId : 1;
-    try {
-      const res = await fetch(`/characters/${targetId}`, {
-        cache: "no-cache",
-      });
-      if (res.ok) {
+      const hadHistory = conversation.length > 0;
+      let historyRendered = false;
+      try {
+        const res = await fetch(`/characters/${targetId}`, {
+          cache: "no-cache",
+        });
+        if (res.ok) {
         const data = await res.json();
         currentCharacter = {
           id: data.id,
@@ -702,12 +953,34 @@ function initChatMode() {
         };
         if (currentCharacter.greeting) {
           const greetingText = currentCharacter.greeting;
-          addMessage("assistant", greetingText);
-          conversation.push({ role: "assistant", content: greetingText });
+          if (!hadHistory) {
+            const greetTurn = {
+              id: nextMessageId(),
+              role: "assistant",
+              content: greetingText,
+            };
+            addMessage(greetTurn);
+            conversation.push(greetTurn);
+            saveConversationHistory(currentCharacterId, conversation);
+          }
+        }
+        if (hadHistory) {
+          if (restoredFromArchive) {
+            chatHistory.innerHTML = "";
+            renderExistingConversation();
+            historyRendered = true;
+            restoredFromArchive = false;
+          } else {
+            renderExistingConversation();
+            historyRendered = true;
+          }
         }
       }
     } catch (err) {
       console.error(err);
+    }
+    if (hadHistory && !historyRendered) {
+      renderExistingConversation();
     }
   }
 

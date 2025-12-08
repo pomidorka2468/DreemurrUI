@@ -1,0 +1,235 @@
+const ARCHIVE_TYPES = {
+  chat: { labelKey: "archive.type.chat", icon: "/static/icons/chat.svg", className: "chat", tint: "#3b82f6" },
+  story: { labelKey: "archive.type.story", icon: "/static/icons/feather.svg", className: "story", tint: "#22c55e" },
+  roleplay: { labelKey: "archive.type.rp", icon: "/static/icons/roleplay.svg", className: "roleplay", tint: "#f59e0b" },
+};
+
+(function () {
+  async function fetchArchiveList() {
+    const res = await fetch("/archive", { cache: "no-cache" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  async function fetchArchiveDetail(id) {
+    const res = await fetch(`/archive/${encodeURIComponent(id)}`, { cache: "no-cache" });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    return res.json();
+  }
+
+  window.initArchiveMode = function () {
+    const listEl = document.getElementById("archiveList");
+    const emptyEl = document.getElementById("archiveEmpty");
+    const searchEl = document.getElementById("archiveSearch");
+    const filterEl = document.getElementById("archiveTypeFilter");
+    const detailIcon = document.getElementById("archiveDetailIcon");
+    const detailTitle = document.getElementById("archiveDetailTitle");
+    const detailMeta = document.getElementById("archiveDetailMeta");
+    const detailContent = document.getElementById("archiveDetailContent");
+    const refreshBtn = document.getElementById("archiveRefreshBtn");
+    const exportBtn = document.getElementById("archiveExportBtn");
+    const restoreBtn = document.getElementById("archiveRestoreBtn");
+
+    if (!listEl) return;
+
+    const t = (key, fallback = "") =>
+      typeof window.t === "function" ? window.t(key, fallback) : fallback || key;
+
+    let items = [];
+    let activeId = null;
+    let activeEntry = null;
+    let pendingRefresh = false;
+
+    function renderDetail(entry) {
+      if (!entry) {
+        if (detailTitle) detailTitle.textContent = t("archive.pick_entry", "Select an entry to view");
+        if (detailMeta) detailMeta.textContent = "";
+        if (detailContent) detailContent.textContent = "";
+        if (detailIcon) detailIcon.innerHTML = "";
+        return;
+      }
+      const typeMeta = ARCHIVE_TYPES[entry.type] || ARCHIVE_TYPES.chat;
+      if (detailTitle) detailTitle.textContent = entry.name || t("archive.untitled", "Untitled");
+      if (detailMeta) {
+        const date = new Date(entry.updated_at || Date.now());
+        detailMeta.textContent = `${t(typeMeta.labelKey, entry.type)} • ${date.toLocaleString()} • ${entry.model || ""}`;
+      }
+      if (detailContent) detailContent.textContent = entry.preview || t("archive.no_preview", "No preview yet.");
+      if (detailIcon) {
+        detailIcon.innerHTML = "";
+        const img = document.createElement("img");
+        img.src = typeMeta.icon;
+        img.alt = entry.type;
+        detailIcon.appendChild(img);
+      }
+    }
+
+    function renderList() {
+      listEl.innerHTML = "";
+      const query = (searchEl?.value || "").toLowerCase().trim();
+      const typeFilter = filterEl?.value || "all";
+
+      const filtered = items.filter((item) => {
+        const matchesType = typeFilter === "all" || item.type === typeFilter;
+        const matchesQuery =
+          !query ||
+          (item.name && item.name.toLowerCase().includes(query)) ||
+          (item.preview && item.preview.toLowerCase().includes(query));
+        return matchesType && matchesQuery;
+      });
+
+      if (emptyEl) emptyEl.hidden = filtered.length > 0;
+
+      filtered.forEach((item) => {
+        const typeMeta = ARCHIVE_TYPES[item.type] || ARCHIVE_TYPES.chat;
+        const row = document.createElement("div");
+        row.className = "archive-item" + (item.id === activeId ? " archive-item-active" : "");
+        row.setAttribute("role", "listitem");
+
+        const iconBox = document.createElement("div");
+        iconBox.className = "archive-item-icon";
+        iconBox.style.background = `color-mix(in srgb, ${typeMeta.tint} 16%, transparent)`;
+        const iconImg = document.createElement("img");
+        iconImg.src = typeMeta.icon;
+        iconImg.alt = item.type;
+        iconBox.appendChild(iconImg);
+
+        const body = document.createElement("div");
+        body.className = "archive-item-body";
+
+        const title = document.createElement("div");
+        title.className = "archive-item-title";
+        title.textContent = item.name || t("archive.untitled", "Untitled");
+
+        const meta = document.createElement("div");
+        meta.className = "archive-item-meta";
+        const pill = document.createElement("span");
+        pill.className = `archive-pill ${typeMeta.className}`;
+        const pillIcon = document.createElement("img");
+        pillIcon.src = typeMeta.icon;
+        pillIcon.alt = item.type;
+        pill.appendChild(pillIcon);
+        const pillText = document.createElement("span");
+        pillText.textContent = t(typeMeta.labelKey, item.type);
+        pill.appendChild(pillText);
+
+        const time = document.createElement("span");
+        const d = new Date(item.updated_at || Date.now());
+        time.textContent = d.toLocaleString();
+
+        meta.appendChild(pill);
+        meta.appendChild(time);
+
+        const preview = document.createElement("div");
+        preview.className = "archive-preview";
+        preview.textContent = item.preview || t("archive.no_preview", "No preview yet.");
+
+        body.appendChild(title);
+        body.appendChild(meta);
+        body.appendChild(preview);
+
+        row.appendChild(iconBox);
+        row.appendChild(body);
+
+        row.addEventListener("click", () => {
+          activeId = item.id;
+          renderList();
+          fetchArchiveDetail(item.id)
+            .then((entry) => {
+              activeEntry = entry;
+              renderDetail(entry);
+            })
+            .catch(() => {
+              activeEntry = item;
+              renderDetail(item);
+            });
+        });
+
+        listEl.appendChild(row);
+      });
+    }
+
+    async function refresh() {
+      if (pendingRefresh) return;
+      pendingRefresh = true;
+      try {
+        items = await fetchArchiveList();
+      } catch (err) {
+        console.error("Failed to load archive", err);
+        items = [];
+      }
+      if (!items.find((i) => i.id === activeId)) {
+        activeId = items[0]?.id || null;
+      }
+      renderList();
+      const active = items.find((i) => i.id === activeId);
+      if (active) {
+        try {
+          const detail = await fetchArchiveDetail(active.id);
+          activeEntry = detail;
+          renderDetail(detail);
+        } catch {
+          activeEntry = active;
+          renderDetail(active);
+        }
+      } else {
+        activeEntry = null;
+        renderDetail(null);
+      }
+      pendingRefresh = false;
+    }
+
+    refreshBtn?.addEventListener("click", () => refresh());
+
+    exportBtn?.addEventListener("click", async () => {
+      try {
+        const latest = await fetchArchiveList();
+        const text = JSON.stringify(latest, null, 2);
+        await navigator.clipboard.writeText(text);
+        setStatus("archive.status.exported", "Copied archive to clipboard.");
+      } catch {
+        setStatus("archive.status.export_error", "Copy failed.");
+      }
+    });
+
+    restoreBtn?.addEventListener("click", () => {
+      if (!activeEntry) return;
+      try {
+        const payload = {
+          model: activeEntry.model,
+          character_id: activeEntry.character_id,
+          messages: activeEntry.messages || [],
+          archive_id: activeEntry.id,
+        };
+        localStorage.setItem("dreamui-restore-chat", JSON.stringify(payload));
+        if (activeEntry.model) {
+          localStorage.setItem("dreamui-active-model", activeEntry.model);
+        }
+        if (activeEntry.character_id) {
+          localStorage.setItem("dreamui-active-character", String(activeEntry.character_id));
+        }
+        setStatus("archive.status.restored", "Ready to restore in chat mode.");
+        const chatBtn = document.querySelector('.mode-icon-btn[data-mode-id="chat"]');
+        chatBtn?.click();
+      } catch (err) {
+        console.error("Failed to queue restore", err);
+      }
+    });
+
+    window.addEventListener("storage", (e) => {
+      if (e.key === "dreamui-archive-refresh") {
+        refresh();
+      }
+    });
+    window.addEventListener("dreamui-archive-refresh", () => refresh());
+
+    function setStatus(key, fallback) {
+      console.debug("[archive]", fallback || key);
+    }
+
+    searchEl?.addEventListener("input", () => renderList());
+    filterEl?.addEventListener("change", () => renderList());
+
+    refresh();
+  };
+})();

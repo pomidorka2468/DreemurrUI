@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="/static/css/notebook.css" />
   <link rel="stylesheet" href="/static/css/character.css" />
   <link rel="stylesheet" href="/static/css/model.css" />
+  <link rel="stylesheet" href="/static/css/world.css" />
+  <link rel="stylesheet" href="/static/css/archive.css" />
 </head>
 <body>
   <div class="app-shell" id="appShell">
@@ -27,6 +29,9 @@
         </button>
         <button class="mode-icon-btn mode-world" data-mode-id="world" title="World / Story Context">
           <img src="/static/icons/book.svg" alt="World" />
+        </button>
+        <button class="mode-icon-btn mode-archive" data-mode-id="archive" title="Archive">
+          <img src="/static/icons/archive.svg" alt="Archive" />
         </button>
         <button class="mode-icon-btn mode-characters" data-mode-id="characters" title="Characters for Chat">
           <img src="/static/icons/character_info.svg" alt="Characters" />
@@ -61,7 +66,7 @@
     // Cache-bust JS on every page load
     (function () {
       const cacheBust = Date.now();
-      const scripts = ["main", "notebook", "character", "model"];
+      const scripts = ["main", "notebook", "character", "model", "world", "archive"];
       scripts.forEach((name) => {
         const s = document.createElement("script");
         s.src = `/static/js/${name}.js?${cacheBust}`;

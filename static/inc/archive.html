@@ -1,0 +1,56 @@
+<div class="archive-layout">
+  <header class="archive-header">
+    <div class="archive-actions">
+      <button id="archiveRefreshBtn" class="archive-btn ghost" data-lang="archive.refresh">
+        Refresh
+      </button>
+      <button id="archiveExportBtn" class="archive-btn primary" data-lang="archive.export">
+        Export
+      </button>
+    </div>
+  </header>
+
+  <div class="archive-grid">
+    <section class="archive-panel archive-filter-panel">
+      <div class="archive-filter-row">
+        <input
+          id="archiveSearch"
+          class="archive-input"
+          type="search"
+          placeholder="Search..."
+          data-lang-placeholder="archive.search"
+        />
+        <select id="archiveTypeFilter" class="archive-select">
+          <option value="all" data-lang="archive.type.all">All</option>
+          <option value="chat" data-lang="archive.type.chat">Chat</option>
+          <option value="story" data-lang="archive.type.story">Story</option>
+          <option value="roleplay" data-lang="archive.type.rp">Roleplay</option>
+        </select>
+      </div>
+      <div class="archive-list" id="archiveList" role="list"></div>
+      <div class="archive-empty" id="archiveEmpty" data-lang="archive.empty" hidden>
+        Nothing archived yet.
+      </div>
+      <div class="archive-restore-wrap">
+        <button id="archiveRestoreBtn" class="archive-btn primary" data-lang="archive.restore">
+          Restore to chat
+        </button>
+      </div>
+    </section>
+
+    <section class="archive-panel archive-detail-panel">
+      <div class="archive-detail-head">
+        <div class="archive-detail-icon" id="archiveDetailIcon"></div>
+        <div class="archive-detail-text">
+          <div class="archive-detail-title" id="archiveDetailTitle" data-lang="archive.pick_entry">
+            Select an entry to view
+          </div>
+          <div class="archive-detail-meta" id="archiveDetailMeta"></div>
+        </div>
+      </div>
+      <div class="archive-detail-body">
+        <div class="archive-detail-content" id="archiveDetailContent"></div>
+      </div>
+    </section>
+  </div>
+</div>

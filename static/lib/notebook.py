@@ -35,17 +35,17 @@ class NotebookResponse(BaseModel):
 @router.post("/notebook/continue")
 async def notebook_continue(req: NotebookContinueRequest):
     style = req.style or ""
-    prompt = (
-        "You are a writing assistant for long-form fiction.\n"
+    prompt = ( ""
+        + "You are a writing assistant for long-form fiction.\n"
         + (f'Follow these style instructions: "{style}".\n' if style else "")
         + "Continue the story below in the same style. "
         + "If the text below ends with an unfinished sentence, do not start with a new sentence, but instead continue the existing one. "
         + "Answer with the same language used in the story. "
-        "Do not use '...' to show where you continue from "
-        "Do not repeat existing text, only continue from where it stops.\n\n"
-        "[STORY START]\n"
-        f"{req.text}\n"
-        "[STORY END]\n"
+        + "Do not use '...' to show where you continue from "
+        + "Do not repeat existing text, only continue from where it stops.\n\n"
+        + "[STORY START]\n"
+        + f"{req.text}\n"
+        + "[STORY END]\n"
     )
 
     payload = {

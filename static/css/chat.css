@@ -95,6 +95,75 @@
   white-space: pre-wrap;
 }
 
+.msg-body strong {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.msg-body em {
+  font-style: italic;
+  color: var(--text-muted);
+}
+
+.msg-actions {
+  margin-top: 6px;
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.msg-action-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  padding: 2px 6px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.msg-action-btn:hover:not(:disabled) {
+  background: var(--surface-highlight);
+  color: var(--text-main);
+}
+
+.msg-action-btn.delete:hover {
+  color: #c0392b;
+}
+
+.msg-action-btn.save,
+.msg-action-btn.cancel {
+  display: none;
+}
+
+.msg.editing .msg-action-btn.edit,
+.msg.editing .msg-action-btn.delete {
+  display: none;
+}
+
+.msg.editing .msg-action-btn.save,
+.msg.editing .msg-action-btn.cancel {
+  display: inline-block;
+}
+
+.msg-edit-area {
+  width: 100%;
+  box-sizing: border-box;
+  border: 1px solid var(--input-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  background: var(--input-bg);
+  color: var(--text-main);
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  resize: vertical;
+}
+
+.msg.editing .msg-body {
+  white-space: normal;
+}
+
 /* Input bar */
 
 .chat-input-bar {

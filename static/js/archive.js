@@ -22,13 +22,9 @@ const ARCHIVE_TYPES = {
     const emptyEl = document.getElementById("archiveEmpty");
     const searchEl = document.getElementById("archiveSearch");
     const filterEl = document.getElementById("archiveTypeFilter");
-    const detailIcon = document.getElementById("archiveDetailIcon");
-    const detailTitle = document.getElementById("archiveDetailTitle");
-    const detailMeta = document.getElementById("archiveDetailMeta");
-    const detailContent = document.getElementById("archiveDetailContent");
     const refreshBtn = document.getElementById("archiveRefreshBtn");
-    const exportBtn = document.getElementById("archiveExportBtn");
     const restoreBtn = document.getElementById("archiveRestoreBtn");
+    const deleteBtn = document.getElementById("archiveDeleteBtn");
 
     if (!listEl) return;
 
@@ -39,28 +35,34 @@ const ARCHIVE_TYPES = {
     let activeId = null;
     let activeEntry = null;
     let pendingRefresh = false;
+    let editingId = null;
 
-    function renderDetail(entry) {
-      if (!entry) {
-        if (detailTitle) detailTitle.textContent = t("archive.pick_entry", "Select an entry to view");
-        if (detailMeta) detailMeta.textContent = "";
-        if (detailContent) detailContent.textContent = "";
-        if (detailIcon) detailIcon.innerHTML = "";
-        return;
-      }
-      const typeMeta = ARCHIVE_TYPES[entry.type] || ARCHIVE_TYPES.chat;
-      if (detailTitle) detailTitle.textContent = entry.name || t("archive.untitled", "Untitled");
-      if (detailMeta) {
-        const date = new Date(entry.updated_at || Date.now());
-        detailMeta.textContent = `${t(typeMeta.labelKey, entry.type)} • ${date.toLocaleString()} • ${entry.model || ""}`;
-      }
-      if (detailContent) detailContent.textContent = entry.preview || t("archive.no_preview", "No preview yet.");
-      if (detailIcon) {
-        detailIcon.innerHTML = "";
-        const img = document.createElement("img");
-        img.src = typeMeta.icon;
-        img.alt = entry.type;
-        detailIcon.appendChild(img);
+    async function renameEntry(target, newName) {
+      if (!target) return;
+      const trimmed = (newName || "").trim();
+      if (!trimmed || trimmed === target.name) return;
+      try {
+        const res = await fetch("/archive", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            id: target.id,
+            type: target.type || "chat",
+            name: trimmed,
+            preview: target.preview || "",
+            model: target.model || "",
+            created_at: target.created_at,
+            messages: target.messages || [],
+            character_id: target.character_id,
+          }),
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        setStatus("archive.status.renamed", "Archive renamed.");
+        editingId = null;
+        await refresh();
+      } catch (err) {
+        console.error("Failed to rename archive", err);
+        setStatus("archive.status.rename_error", "Rename failed.");
       }
     }
 
@@ -86,20 +88,64 @@ const ARCHIVE_TYPES = {
         row.className = "archive-item" + (item.id === activeId ? " archive-item-active" : "");
         row.setAttribute("role", "listitem");
 
-        const iconBox = document.createElement("div");
-        iconBox.className = "archive-item-icon";
-        iconBox.style.background = `color-mix(in srgb, ${typeMeta.tint} 16%, transparent)`;
-        const iconImg = document.createElement("img");
-        iconImg.src = typeMeta.icon;
-        iconImg.alt = item.type;
-        iconBox.appendChild(iconImg);
-
         const body = document.createElement("div");
         body.className = "archive-item-body";
 
         const title = document.createElement("div");
         title.className = "archive-item-title";
-        title.textContent = item.name || t("archive.untitled", "Untitled");
+        const isEditing = item.id === activeId && editingId === item.id;
+        if (isEditing) {
+          const input = document.createElement("input");
+          input.type = "text";
+          input.className = "archive-rename-input";
+          input.value = item.name || t("archive.untitled", "Untitled");
+          input.addEventListener("click", (ev) => ev.stopPropagation());
+
+          const actions = document.createElement("div");
+          actions.className = "archive-rename-actions";
+
+          const saveBtn = document.createElement("button");
+          saveBtn.type = "button";
+          saveBtn.className = "archive-rename-btn primary";
+          saveBtn.textContent = t("archive.rename_save", "Save");
+          saveBtn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            renameEntry(activeEntry || item, input.value);
+          });
+
+          const cancelBtn = document.createElement("button");
+          cancelBtn.type = "button";
+          cancelBtn.className = "archive-rename-btn ghost";
+          cancelBtn.textContent = t("archive.rename_cancel", "Cancel");
+          cancelBtn.addEventListener("click", (ev) => {
+            ev.stopPropagation();
+            editingId = null;
+            renderList();
+          });
+
+          actions.appendChild(saveBtn);
+          actions.appendChild(cancelBtn);
+          title.appendChild(input);
+          title.appendChild(actions);
+
+          setTimeout(() => input.focus(), 0);
+        } else {
+          const nameSpan = document.createElement("span");
+          nameSpan.textContent = item.name || t("archive.untitled", "Untitled");
+          title.appendChild(nameSpan);
+          if (item.id === activeId) {
+            const renameInline = document.createElement("button");
+            renameInline.type = "button";
+            renameInline.className = "archive-rename-btn";
+            renameInline.textContent = t("archive.rename", "Rename");
+            renameInline.addEventListener("click", (ev) => {
+              ev.stopPropagation();
+              editingId = item.id;
+              renderList();
+            });
+            title.appendChild(renameInline);
+          }
+        }
 
         const meta = document.createElement("div");
         meta.className = "archive-item-meta";
@@ -128,7 +174,6 @@ const ARCHIVE_TYPES = {
         body.appendChild(meta);
         body.appendChild(preview);
 
-        row.appendChild(iconBox);
         row.appendChild(body);
 
         row.addEventListener("click", () => {
@@ -137,11 +182,9 @@ const ARCHIVE_TYPES = {
           fetchArchiveDetail(item.id)
             .then((entry) => {
               activeEntry = entry;
-              renderDetail(entry);
             })
             .catch(() => {
               activeEntry = item;
-              renderDetail(item);
             });
         });
 
@@ -163,34 +206,11 @@ const ARCHIVE_TYPES = {
       }
       renderList();
       const active = items.find((i) => i.id === activeId);
-      if (active) {
-        try {
-          const detail = await fetchArchiveDetail(active.id);
-          activeEntry = detail;
-          renderDetail(detail);
-        } catch {
-          activeEntry = active;
-          renderDetail(active);
-        }
-      } else {
-        activeEntry = null;
-        renderDetail(null);
-      }
+      activeEntry = active || null;
       pendingRefresh = false;
     }
 
     refreshBtn?.addEventListener("click", () => refresh());
-
-    exportBtn?.addEventListener("click", async () => {
-      try {
-        const latest = await fetchArchiveList();
-        const text = JSON.stringify(latest, null, 2);
-        await navigator.clipboard.writeText(text);
-        setStatus("archive.status.exported", "Copied archive to clipboard.");
-      } catch {
-        setStatus("archive.status.export_error", "Copy failed.");
-      }
-    });
 
     restoreBtn?.addEventListener("click", () => {
       if (!activeEntry) return;
@@ -213,6 +233,25 @@ const ARCHIVE_TYPES = {
         chatBtn?.click();
       } catch (err) {
         console.error("Failed to queue restore", err);
+      }
+    });
+
+    deleteBtn?.addEventListener("click", async () => {
+      if (!activeEntry) return;
+      const ok = window.confirm(t("archive.delete_confirm", "Delete this archived chat?"));
+      if (!ok) return;
+      try {
+        const res = await fetch(`/archive/${encodeURIComponent(activeEntry.id)}`, {
+          method: "DELETE",
+        });
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        activeEntry = null;
+        activeId = null;
+        await refresh();
+        setStatus("archive.status.deleted", "Archive deleted.");
+      } catch (err) {
+        console.error("Failed to delete archive", err);
+        setStatus("archive.status.delete_error", "Delete failed.");
       }
     });
 

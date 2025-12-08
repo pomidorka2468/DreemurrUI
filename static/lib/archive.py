@@ -143,3 +143,15 @@ def api_save_archive(entry: ArchiveEntry):
     }
     path.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
     return data
+
+
+@router.delete("/archive/{entry_id}")
+def api_delete_archive(entry_id: str):
+    path = _entry_path(entry_id)
+    if not path.exists():
+        raise HTTPException(status_code=404, detail="Archive entry not found")
+    try:
+        path.unlink()
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Failed to delete archive: {exc}") from exc
+    return {"status": "deleted", "id": _safe_id(entry_id)}

@@ -215,6 +215,10 @@
   cursor: default;
 }
 
+.msg.editing .msg-action-btn.regen {
+  display: none;
+}
+
 /* Responsive */
 
 @media (max-width: 640px) {

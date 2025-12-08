@@ -567,6 +567,11 @@ function initChatMode() {
     chatSessions[key] = history;
   }
 
+  function resetArchiveId() {
+    currentArchiveId = null;
+    localStorage.removeItem(archiveKey);
+  }
+
   function renderExistingConversation() {
     if (!conversation.length) return;
     conversation.forEach((turn) => {
@@ -581,6 +586,9 @@ function initChatMode() {
     messageSeq = conversation.length;
   }
   consumePendingRestore();
+  if (!conversation.length) {
+    resetArchiveId();
+  }
 
   window.addEventListener("dreamui-restore-chat", () => {
     consumePendingRestore();
@@ -630,6 +638,42 @@ function initChatMode() {
     const withBold = escaped.replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>");
     const withItalics = withBold.replace(/(^|[^*])\*(?!\s)([^*\n]+?)\*(?!\*)/g, "$1<em>$2</em>");
     return withItalics;
+  }
+
+  function setStatus(key, fallback) {
+    if (statusText) {
+      statusText.textContent = t(key, fallback || statusText.textContent || "");
+    }
+  }
+
+  function buildChatPayload(prompt, historyTurns) {
+    const payload = {
+      prompt,
+      character_id: parseInt(currentCharacter.id, 10) || 1,
+      history: (historyTurns || []).map((turn) => ({
+        role: turn.role,
+        content: turn.content,
+      })),
+      archive_id: currentArchiveId,
+    };
+
+    const detectedLang =
+      detectLanguageFromText(prompt) ||
+      window.currentLanguage ||
+      localStorage.getItem(LANGUAGE_KEY) ||
+      "en";
+    payload.language = detectedLang;
+    const storedModel = localStorage.getItem(ACTIVE_MODEL_KEY);
+    if (storedModel) {
+      payload.model = storedModel;
+    }
+    if (!currentArchiveId) {
+      currentArchiveId = `chat-${Date.now()}`;
+      localStorage.setItem(archiveKey, currentArchiveId);
+      payload.archive_id = currentArchiveId;
+    }
+
+    return payload;
   }
 
   function buildIconElement(iconVal, name) {
@@ -705,6 +749,15 @@ function initChatMode() {
         cancelBtn.textContent = t("chat.cancel", "Cancel");
         cancelBtn.dataset.action = "cancel";
 
+        let regenBtn;
+        if (role === "assistant") {
+          regenBtn = document.createElement("button");
+          regenBtn.type = "button";
+          regenBtn.className = "msg-action-btn regen";
+          regenBtn.textContent = t("chat.regenerate", "Regenerate");
+          regenBtn.dataset.action = "regen";
+        }
+
         const deleteBtn = document.createElement("button");
         deleteBtn.type = "button";
         deleteBtn.className = "msg-action-btn delete";
@@ -714,6 +767,7 @@ function initChatMode() {
         actions.appendChild(editBtn);
         actions.appendChild(saveBtn);
         actions.appendChild(cancelBtn);
+        if (regenBtn) actions.appendChild(regenBtn);
         actions.appendChild(deleteBtn);
       }
 
@@ -725,6 +779,82 @@ function initChatMode() {
     chatHistory.appendChild(msg);
     chatHistory.scrollTop = chatHistory.scrollHeight;
     return { msg, bodyEl: msg.querySelector(".msg-body") };
+  }
+
+  async function streamAssistantResponse({ prompt, historyTurns, statusKey }) {
+    const payload = buildChatPayload(prompt, historyTurns);
+    const assistantTurn = { id: nextMessageId(), role: "assistant", content: "" };
+    const assistantRendered = addMessage(assistantTurn);
+    const bodyEl = assistantRendered?.bodyEl;
+    let assistantBuffer = "";
+
+    const fallbackStatus =
+      statusKey === "chat.status.regenerating" ? "Regenerating..." : "Thinking...";
+    setStatus(statusKey || "chat.status.thinking", fallbackStatus);
+    if (sendBtn) {
+      sendBtn.disabled = true;
+    }
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+
+      if (!res.ok) {
+        throw new Error("HTTP " + res.status);
+      }
+
+      const reader = res.body.getReader();
+      const decoder = new TextDecoder("utf-8");
+      let buffer = "";
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+
+        const lines = buffer.split("\n");
+        buffer = lines.pop() ?? "";
+
+        for (const line of lines) {
+          const trimmed = line.trim();
+          if (!trimmed) continue;
+
+          try {
+            const json = JSON.parse(trimmed);
+            const delta = json.choices?.[0]?.delta?.content;
+            if (delta) {
+              assistantBuffer += delta;
+              assistantTurn.content = assistantBuffer;
+              if (bodyEl) bodyEl.innerHTML = renderInlineFormatting(assistantBuffer);
+              chatHistory.scrollTop = chatHistory.scrollHeight;
+            }
+          } catch {
+            // ignore partial/unparsable chunks
+          }
+        }
+      }
+
+      setStatus("chat.status.ready", "Ready");
+      assistantTurn.content = assistantBuffer;
+      conversation.push(assistantTurn);
+      saveConversationHistory(currentCharacterId, conversation);
+      localStorage.setItem("dreamui-archive-refresh", String(Date.now()));
+      window.dispatchEvent(new Event("dreamui-archive-refresh"));
+      return assistantTurn;
+    } catch (err) {
+      console.error(err);
+      addMessage({ id: nextMessageId(), role: "system", content: "Stream error: " + err.message });
+      setStatus("chat.status.error", "Error");
+      return null;
+    } finally {
+      if (sendBtn) {
+        sendBtn.disabled = false;
+      }
+    }
   }
 
   function findTurnIndexById(mid) {
@@ -766,6 +896,9 @@ function initChatMode() {
     const el = chatHistory.querySelector(`[data-mid="${mid}"]`);
     if (el) el.remove();
     saveConversationHistory(currentCharacterId, conversation);
+    if (!conversation.length) {
+      resetArchiveId();
+    }
   }
 
   function handleSaveMessage(mid) {
@@ -796,6 +929,46 @@ function initChatMode() {
     msgEl.classList.remove("editing");
   }
 
+  function findPreviousUserIndex(startIdx) {
+    for (let i = startIdx - 1; i >= 0; i -= 1) {
+      const turn = conversation[i];
+      if (turn && turn.role === "user") return i;
+    }
+    return -1;
+  }
+
+  async function handleRegenerateMessage(mid) {
+    if (sendBtn?.disabled) return;
+    const idx = findTurnIndexById(mid);
+    if (idx === -1) return;
+    const turn = conversation[idx];
+    if (!turn || turn.role !== "assistant") return;
+
+    const userIdx = findPreviousUserIndex(idx);
+    if (userIdx === -1) return;
+    const prompt = (conversation[userIdx].content || "").trim();
+    if (!prompt) return;
+
+    const removedTurns = conversation.splice(userIdx + 1);
+    removedTurns.forEach((t) => {
+      if (!t?.id) return;
+      const el = chatHistory.querySelector(`[data-mid="${t.id}"]`);
+      if (el) el.remove();
+    });
+    saveConversationHistory(currentCharacterId, conversation);
+    if (!conversation.length) {
+      resetArchiveId();
+    }
+
+    const historyBeforeUser = conversation.slice(0, userIdx);
+
+    await streamAssistantResponse({
+      prompt,
+      historyTurns: historyBeforeUser,
+      statusKey: "chat.status.regenerating",
+    });
+  }
+
   chatHistory.addEventListener("click", (e) => {
     const btn = e.target.closest(".msg-action-btn");
     if (!btn) return;
@@ -811,113 +984,31 @@ function initChatMode() {
       handleCancelEdit(mid);
     } else if (action === "delete") {
       handleDeleteMessage(mid);
+    } else if (action === "regen") {
+      handleRegenerateMessage(mid);
     }
   });
 
   async function sendMessage() {
+    if (sendBtn?.disabled) return;
     const prompt = promptEl.value.trim();
     if (!prompt) return;
 
-    // user bubble
+    const historyBeforeUser = conversation.slice();
+
     const userMsg = { id: nextMessageId(), role: "user", content: prompt };
     addMessage(userMsg);
     promptEl.value = "";
     promptEl.focus();
 
-    sendBtn.disabled = true;
-    statusText.textContent = t("chat.status.thinking", "Thinking…");
-
-    const payload = {
-      prompt,
-      character_id: parseInt(currentCharacter.id, 10) || 1,
-      history: conversation.map((turn) => ({
-        role: turn.role,
-        content: turn.content,
-      })),
-      archive_id: currentArchiveId,
-    };
-    const detectedLang =
-      detectLanguageFromText(prompt) ||
-      window.currentLanguage ||
-      localStorage.getItem(LANGUAGE_KEY) ||
-      "en";
-    payload.language = detectedLang;
-    const storedModel = localStorage.getItem(ACTIVE_MODEL_KEY);
-    if (storedModel) {
-      payload.model = storedModel;
-    }
-    if (!currentArchiveId) {
-      currentArchiveId = `chat-${Date.now()}`;
-      localStorage.setItem(archiveKey, currentArchiveId);
-      payload.archive_id = currentArchiveId;
-    }
-
-    // create assistant bubble now, fill it as tokens arrive
-    const assistantTurn = { id: nextMessageId(), role: "assistant", content: "" };
-    const assistantRendered = addMessage(assistantTurn);
-    const bodyEl = assistantRendered?.bodyEl;
     conversation.push(userMsg);
     saveConversationHistory(currentCharacterId, conversation);
-    let assistantBuffer = "";
 
-    try {
-      const res = await fetch(API_URL, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        throw new Error("HTTP " + res.status);
-      }
-
-      // streaming reader
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder("utf-8");
-      let buffer = "";
-
-      while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        buffer += decoder.decode(value, { stream: true });
-
-        // we yield one JSON per line from the backend
-        const lines = buffer.split("\n");
-        buffer = lines.pop() ?? ""; // keep last partial line
-
-        for (const line of lines) {
-          const trimmed = line.trim();
-          if (!trimmed) continue;
-
-          try {
-            const json = JSON.parse(trimmed);
-            const delta = json.choices?.[0]?.delta?.content;
-            if (delta) {
-              assistantBuffer += delta;
-              assistantTurn.content = assistantBuffer;
-              if (bodyEl) bodyEl.innerHTML = renderInlineFormatting(assistantBuffer);
-              chatHistory.scrollTop = chatHistory.scrollHeight;
-            }
-          } catch {
-            // ignore partial/unparsable chunks
-          }
-        }
-      }
-
-      statusText.textContent = t("chat.status.ready", "Ready");
-      assistantTurn.content = assistantBuffer;
-      conversation.push(assistantTurn);
-      saveConversationHistory(currentCharacterId, conversation);
-      localStorage.setItem("dreamui-archive-refresh", String(Date.now()));
-      window.dispatchEvent(new Event("dreamui-archive-refresh"));
-    } catch (err) {
-      console.error(err);
-      addMessage({ id: nextMessageId(), role: "system", content: "Stream error: " + err.message });
-      statusText.textContent = t("chat.status.error", "Error");
-    } finally {
-      sendBtn.disabled = false;
-    }
+    await streamAssistantResponse({
+      prompt,
+      historyTurns: historyBeforeUser,
+      statusKey: "chat.status.thinking",
+    });
   }
 
   chatForm.addEventListener("submit", (e) => {

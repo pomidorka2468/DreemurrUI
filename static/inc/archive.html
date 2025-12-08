@@ -1,11 +1,14 @@
 <div class="archive-layout">
   <header class="archive-header">
     <div class="archive-actions">
+      <button id="archiveRestoreBtn" class="archive-btn primary" data-lang="archive.restore">
+        Restore
+      </button>
       <button id="archiveRefreshBtn" class="archive-btn ghost" data-lang="archive.refresh">
         Refresh
       </button>
-      <button id="archiveExportBtn" class="archive-btn primary" data-lang="archive.export">
-        Export
+      <button id="archiveDeleteBtn" class="archive-btn danger" data-lang="archive.delete">
+        Delete
       </button>
     </div>
   </header>
@@ -31,26 +34,7 @@
       <div class="archive-empty" id="archiveEmpty" data-lang="archive.empty" hidden>
         Nothing archived yet.
       </div>
-      <div class="archive-restore-wrap">
-        <button id="archiveRestoreBtn" class="archive-btn primary" data-lang="archive.restore">
-          Restore to chat
-        </button>
-      </div>
     </section>
 
-    <section class="archive-panel archive-detail-panel">
-      <div class="archive-detail-head">
-        <div class="archive-detail-icon" id="archiveDetailIcon"></div>
-        <div class="archive-detail-text">
-          <div class="archive-detail-title" id="archiveDetailTitle" data-lang="archive.pick_entry">
-            Select an entry to view
-          </div>
-          <div class="archive-detail-meta" id="archiveDetailMeta"></div>
-        </div>
-      </div>
-      <div class="archive-detail-body">
-        <div class="archive-detail-content" id="archiveDetailContent"></div>
-      </div>
-    </section>
   </div>
 </div>

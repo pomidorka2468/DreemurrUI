@@ -64,6 +64,17 @@
   background: transparent;
 }
 
+.archive-btn.danger {
+  background: #c0392b;
+  border-color: #c0392b;
+  color: #fff;
+}
+
+.archive-btn.danger:hover {
+  background: #e74c3c;
+  border-color: #e74c3c;
+}
+
 .archive-grid {
   display: grid;
   grid-template-columns: minmax(280px, 360px) 1fr;
@@ -126,11 +137,6 @@
   font-size: 0.9rem;
 }
 
-.archive-restore-wrap {
-  display: flex;
-  justify-content: flex-end;
-}
-
 .archive-item {
   display: flex;
   gap: 10px;
@@ -150,24 +156,6 @@
 
 .archive-item-active {
   border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent);
-}
-
-.archive-item-icon {
-  width: 36px;
-  height: 36px;
-  border-radius: 10px;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  background: var(--surface-1);
-}
-
-.archive-item-icon img {
-  width: 22px;
-  height: 22px;
-  filter: var(--icon-filter, none);
 }
 
 .archive-item-body {
@@ -193,6 +181,50 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.archive-rename-input {
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-main);
+  border-radius: var(--radius-md);
+  padding: 4px 8px;
+  font-size: 0.9rem;
+  min-width: 160px;
+}
+
+.archive-rename-actions {
+  display: inline-flex;
+  gap: 6px;
+}
+
+.archive-rename-btn {
+  border: 1px solid var(--divider);
+  background: var(--surface-1);
+  color: var(--text-muted);
+  border-radius: var(--radius-pill);
+  padding: 2px 8px;
+  font-size: 0.78rem;
+  cursor: pointer;
+}
+
+.archive-rename-btn.primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+.archive-rename-btn.ghost {
+  background: transparent;
+}
+
+.archive-rename-btn:hover {
+  color: var(--text-main);
+  border-color: var(--accent);
+  background: var(--accent-soft);
 }
 
 .archive-item-meta {

@@ -1,4 +1,8 @@
 venv/
 __pycache__/
-*.pyc
-.env
+static/userdata/archive/
+static/userdata/characters/
+static/userdata/character_icons/
+static/userdata/world_info/
+static/userdata/config.json
+*.json

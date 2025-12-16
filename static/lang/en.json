@@ -52,7 +52,7 @@
   "world.untitled": "Untitled entry",
   "world.no_description": "No description yet.",
   "world.new_entry_name": "New entry",
-  "chat.placeholder": "Type your question (Enter = send, Shift+Enter = new line)",
+  "chat.placeholder": "Type your question",
   "chat.send": "Send",
   "chat.regenerate": "Regenerate",
   "chat.status.ready": "Ready",

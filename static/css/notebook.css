@@ -8,14 +8,12 @@
 }
 
 .nb-phone-layout {
+  --panel-shadow-value: 0 8px 22px var(--surface-shadow);
   align-self: center;
   width: min(900px, 100%);
   height: 100%;
   padding: 10px 12px 14px;
   border-radius: 14px;
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  box-shadow: 0 8px 22px var(--surface-shadow);
   gap: 10px;
 }
 
@@ -91,11 +89,9 @@
 
 .nb-inline-label input {
   width: 90px;
-  padding: 3px 6px;
-  border-radius: 8px;
-  border: 1px solid var(--input-border);
-  background: var(--input-bg);
-  font-size: 0.8rem;
+  --input-padding: 3px 6px;
+  --input-radius: var(--radius-sm);
+  --input-font-size: 0.8rem;
 }
 
 /* Save / load view */
@@ -124,18 +120,9 @@
 
 .nb-style-input {
   width: min(420px, 100%);
-  padding: 4px 8px;
-  border-radius: 8px;
-  border: 1px solid var(--input-border);
-  background: var(--input-bg);
-  color: var(--text-main);
-  font-size: 0.85rem;
-}
-
-.nb-style-input:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent-glow);
+  --input-padding: 4px 8px;
+  --input-radius: var(--radius-sm);
+  --input-font-size: 0.85rem;
 }
 
 .nb-context-text {
@@ -144,11 +131,9 @@
   min-height: 90px;
   max-height: 200px;
   resize: vertical;
-  border-radius: 8px;
-  border: 1px solid var(--input-border);
-  background: var(--input-bg);
-  padding: 6px 8px;
-  font-size: 0.85rem;
+  --input-padding: 6px 8px;
+  --input-radius: var(--radius-sm);
+  --input-font-size: 0.85rem;
   font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
     sans-serif;
   line-height: 1.4;
@@ -212,35 +197,13 @@
 /* Top small buttons reused from chat */
 
 .nb-btn {
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--input-border);
-  background: var(--surface-1);
-  padding: 4px 10px;
-  font-size: 0.8rem;
-  cursor: pointer;
-  color: var(--text-main);
-  transition: background 0.12s ease, border-color 0.12s ease,
-    transform 0.06s ease;
-}
-
-.nb-btn:hover {
-  background: var(--accent-soft);
-  border-color: var(--accent-soft-strong);
-}
-
-.nb-btn-primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--text-on-accent);
-}
-
-.nb-btn-ghost {
-  background: transparent;
+  --btn-padding: 4px 10px;
+  --btn-font-size: 0.8rem;
 }
 
 .nb-btn-small {
-  padding: 3px 8px;
-  font-size: 0.76rem;
+  --btn-padding: 3px 8px;
+  --btn-font-size: 0.76rem;
 }
 
 /* Bottom action buttons */

@@ -37,44 +37,6 @@
   gap: 8px;
 }
 
-.archive-btn {
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--input-border);
-  background: var(--surface-1);
-  color: var(--text-main);
-  padding: 7px 12px;
-  font-weight: 600;
-  font-size: 0.88rem;
-  cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
-}
-
-.archive-btn:hover {
-  background: var(--accent-soft);
-  border-color: var(--accent-soft-strong);
-}
-
-.archive-btn.primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--text-on-accent);
-}
-
-.archive-btn.ghost {
-  background: transparent;
-}
-
-.archive-btn.danger {
-  background: #c0392b;
-  border-color: #c0392b;
-  color: #fff;
-}
-
-.archive-btn.danger:hover {
-  background: #e74c3c;
-  border-color: #e74c3c;
-}
-
 .archive-grid {
   display: grid;
   grid-template-columns: minmax(280px, 360px) 1fr;
@@ -83,11 +45,7 @@
 }
 
 .archive-panel {
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  border-radius: 14px;
   padding: 12px;
-  box-shadow: 0 8px 16px var(--surface-shadow);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -101,13 +59,9 @@
 }
 
 .archive-input,
-.archive-select {
-  border: 1px solid var(--input-border);
-  background: var(--input-bg);
-  color: var(--text-main);
-  border-radius: var(--radius-md);
-  padding: 8px 10px;
-  font-size: 0.95rem;
+.archive-select,
+.archive-rename-input {
+  --input-radius: var(--radius-md);
 }
 
 .archive-input {
@@ -127,22 +81,12 @@
   min-height: 200px;
 }
 
-.archive-empty {
-  border: 1px dashed var(--divider);
-  background: var(--surface-2);
-  color: var(--text-muted);
-  padding: 14px;
-  border-radius: 10px;
-  text-align: center;
-  font-size: 0.9rem;
-}
-
 .archive-item {
   display: flex;
   gap: 10px;
   align-items: center;
   padding: 10px;
-  border-radius: 10px;
+  border-radius: var(--card-radius);
   border: 1px solid var(--divider);
   background: var(--surface-2);
   cursor: pointer;
@@ -187,12 +131,8 @@
 }
 
 .archive-rename-input {
-  border: 1px solid var(--input-border);
-  background: var(--input-bg);
-  color: var(--text-main);
-  border-radius: var(--radius-md);
-  padding: 4px 8px;
-  font-size: 0.9rem;
+  --input-padding: 4px 8px;
+  --input-font-size: 0.9rem;
   min-width: 160px;
 }
 

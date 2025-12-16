@@ -27,8 +27,12 @@
   --header-grad-start: #fffaf3;
   --header-grad-end: #fff7ec;
 
+  --radius-sm: 10px;
   --radius-md: 24px;
+  --radius-lg: 30px;
   --radius-pill: 999px;
+  --panel-radius: 14px;
+  --card-radius: 12px;
 
   --sidebar-width: 72px; /* sidebar width, change once here */
 }
@@ -61,4 +65,11 @@
 
   --header-grad-start: #161b26;
   --header-grad-end: #121724;
+
+  --radius-sm: 10px;
+  --radius-md: 24px;
+  --radius-lg: 30px;
+  --radius-pill: 999px;
+  --panel-radius: 14px;
+  --card-radius: 12px;
 }

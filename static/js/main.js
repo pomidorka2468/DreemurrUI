@@ -543,7 +543,9 @@ function initChatMode() {
     promptEl.placeholder = t("chat.placeholder", promptEl.placeholder || "");
   }
   if (sendBtn) {
-    sendBtn.textContent = t("chat.send", sendBtn.textContent || "Send");
+    const label = t("chat.send", sendBtn.getAttribute("aria-label") || "Send");
+    sendBtn.setAttribute("aria-label", label);
+    sendBtn.title = label;
   }
   if (statusText) {
     statusText.textContent = t("chat.status.ready", statusText.textContent || "Ready");

@@ -210,7 +210,7 @@
       actions.className = "model-card-actions";
 
       const useBtn = document.createElement("button");
-      useBtn.className = "model-btn model-btn-primary";
+      useBtn.className = "btn btn-primary model-btn";
       useBtn.textContent =
         model.id === activeModelId
           ? translate("model.active_label", "Active")
@@ -228,7 +228,7 @@
       });
 
       const loadBtn = document.createElement("button");
-      loadBtn.className = "model-btn";
+      loadBtn.className = "btn model-btn";
       loadBtn.textContent = model.loaded
         ? translate("model.eject", "Eject from LM Studio")
         : translate("model.load", "Load into LM Studio");

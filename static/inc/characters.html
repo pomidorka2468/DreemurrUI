@@ -5,31 +5,77 @@
       <select id="charSelect" class="char-select"></select>
     </div>
     <div class="char-actions-row">
-      <button class="char-ghost-btn" id="charSaveBtn" title="Save character" data-lang="char.save" data-lang-title="char.save_title">Save</button>
-      <button class="char-ghost-btn" id="charLoadBtn" title="Load character for chat" data-lang="char.load" data-lang-title="char.load_title">Load</button>
-      <button class="char-ghost-btn" id="charDeleteBtn" title="Delete character" data-lang="char.delete" data-lang-title="char.delete_title">🗑</button>
-      <button class="char-ghost-btn" id="charNewBtn" title="Create new character" data-lang-title="char.new_title" data-lang="char.new">Create new character</button>
+      <button class="btn char-ghost-btn" id="charSaveBtn" title="Save character" data-lang="char.save" data-lang-title="char.save_title">Save</button>
+      <button class="btn char-ghost-btn" id="charLoadBtn" title="Load character for chat" data-lang="char.load" data-lang-title="char.load_title">Load</button>
+      <button class="btn char-ghost-btn" id="charDeleteBtn" title="Delete character" data-lang="char.delete" data-lang-title="char.delete_title">🗑</button>
+      <button class="btn char-ghost-btn" id="charNewBtn" title="Create new character" data-lang-title="char.new_title" data-lang="char.new">Create new character</button>
     </div>
   </section>
 
-  <section class="char-section char-icon-stack">
+  <section class="char-section char-identity two-col">
     <div class="char-field char-icon-field">
       <label class="char-label" data-lang="char.icon">Character Icon</label>
       <div class="char-icon-wrap">
         <div id="charIconPreview" class="char-icon-preview"></div>
+        <div class="char-icon-menu" id="charIconMenu" role="dialog" aria-modal="false">
+          <div class="char-icon-menu-preview" id="charIconMenuPreview"></div>
+          <div class="char-icon-menu-actions">
+            <button class="btn char-ghost-btn" type="button" id="charIconUploadBtn" data-lang="char.icon">Change icon</button>
+            <a class="btn char-ghost-btn" id="charIconDownload" href="#" download="character-icon.png">Download</a>
+            <button class="btn char-ghost-btn" type="button" id="charIconClose">Close</button>
+          </div>
+        </div>
         <input
           type="file"
           id="charIconFile"
-          class="char-icon-picker"
+          class="char-icon-input-hidden"
           accept=".png,.jpg,.jpeg,.gif"
           data-lang-title="char.icon_title"
           title="Pick icon"
+          hidden
         />
       </div>
     </div>
-    <div class="char-field char-name-field">
-      <label for="charName" class="char-label" data-lang="char.name">Character Name</label>
-      <input id="charName" class="char-input" type="text" placeholder="Assistant" data-lang-placeholder="char.name_placeholder" />
+
+    <div class="char-field char-meta-stack">
+      <div class="char-field char-name-field">
+        <label for="charName" class="char-label" data-lang="char.name">Character Name</label>
+        <input
+          id="charName"
+          class="char-input"
+          type="text"
+          placeholder="Assistant"
+          data-lang-placeholder="char.name_placeholder"
+        />
+      </div>
+
+      <div class="char-inline-row">
+        <div class="char-field char-mode-field">
+          <label class="char-label char-sr-only" for="charModeChat" data-lang="char.mode">Character Mode</label>
+          <div class="char-mode-toggle" id="charModeToggle" data-mode="chat" role="radiogroup" aria-label="Character mode">
+            <button type="button" class="char-mode-choice" data-mode="chat" role="radio" aria-checked="true">
+              <span class="char-mode-dot chat-dot"></span>
+              <span class="char-mode-text">Chat</span>
+            </button>
+            <button type="button" class="char-mode-choice" data-mode="roleplay" role="radio" aria-checked="false">
+              <span class="char-mode-dot roleplay-dot"></span>
+              <span class="char-mode-text">Roleplay</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="char-field char-gender-field">
+          <label class="char-label char-sr-only" data-lang="char.gender">Gender</label>
+          <div class="char-gender-toggle" id="charGenderToggle" data-gender="he" role="radiogroup" aria-label="Gender">
+            <button type="button" class="char-gender-choice" data-gender="he" role="radio" aria-checked="true">
+              <span class="char-mode-text">He</span>
+            </button>
+            <button type="button" class="char-gender-choice" data-gender="she" role="radio" aria-checked="false">
+              <span class="char-mode-text">She</span>
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 

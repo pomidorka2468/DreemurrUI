@@ -39,33 +39,6 @@
   align-items: center;
 }
 
-.world-btn {
-  border-radius: var(--radius-pill);
-  border: 1px solid var(--input-border);
-  background: var(--surface-1);
-  color: var(--text-main);
-  padding: 7px 12px;
-  font-weight: 600;
-  font-size: 0.88rem;
-  cursor: pointer;
-  transition: background 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
-}
-
-.world-btn:hover {
-  background: var(--accent-soft);
-  border-color: var(--accent-soft-strong);
-}
-
-.world-btn-primary {
-  background: var(--accent);
-  border-color: var(--accent);
-  color: var(--text-on-accent);
-}
-
-.world-btn-ghost {
-  background: transparent;
-}
-
 .world-grid {
   display: grid;
   grid-template-columns: minmax(260px, 320px) 1fr;
@@ -74,11 +47,7 @@
 }
 
 .world-panel {
-  border: 1px solid var(--panel-border);
-  background: var(--panel-bg);
-  border-radius: 14px;
   padding: 12px;
-  box-shadow: 0 8px 16px var(--surface-shadow);
 }
 
 .world-list-header {
@@ -107,7 +76,7 @@
   width: 100%;
   border: 1px solid var(--divider);
   background: var(--surface-2);
-  border-radius: 10px;
+  border-radius: var(--card-radius);
   padding: 10px;
   display: flex;
   gap: 10px;
@@ -156,16 +125,6 @@
   align-self: center;
 }
 
-.world-empty {
-  border: 1px dashed var(--divider);
-  background: var(--surface-2);
-  color: var(--text-muted);
-  padding: 14px;
-  border-radius: 10px;
-  text-align: center;
-  font-size: 0.9rem;
-}
-
 .world-editor-panel {
   display: flex;
   flex-direction: column;
@@ -187,12 +146,7 @@
 .world-input,
 .world-textarea {
   width: 100%;
-  border: 1px solid var(--input-border);
-  border-radius: var(--radius-md);
-  background: var(--input-bg);
-  color: var(--text-main);
-  padding: 8px 10px;
-  font-size: 0.95rem;
+  --input-radius: var(--radius-md);
 }
 
 .world-textarea {
@@ -200,13 +154,6 @@
   resize: vertical;
   font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
   line-height: 1.45;
-}
-
-.world-input:focus,
-.world-textarea:focus {
-  outline: none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--accent-glow);
 }
 
 .world-hint-row {

@@ -48,29 +48,10 @@
 }
 
 .model-btn {
-  border: 1px solid var(--input-border);
-  background: var(--surface-2);
-  color: var(--text-main);
-  border-radius: var(--radius-pill);
-  padding: 7px 12px;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: background 0.15s ease, border-color 0.15s ease, transform 0.08s ease;
-}
-
-.model-btn:hover {
-  background: var(--accent-soft);
-  border-color: var(--accent);
-}
-
-.model-btn-primary {
-  background: var(--accent);
-  color: var(--text-on-accent);
-  border-color: var(--accent);
-}
-
-.model-btn-ghost {
-  background: transparent;
+  --btn-bg: var(--surface-2);
+  --btn-border: var(--divider);
+  --btn-font-size: 0.9rem;
+  --btn-hover-border: var(--accent);
 }
 
 .model-grid {
@@ -81,11 +62,10 @@
 }
 
 .model-panel {
-  background: var(--surface-2);
-  border: 1px solid var(--divider);
-  border-radius: 14px;
+  --panel-surface: var(--surface-2);
+  --panel-border-color: var(--divider);
+  --panel-shadow-value: 0 6px 20px var(--surface-shadow);
   padding: 12px;
-  box-shadow: 0 6px 20px var(--surface-shadow);
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -135,7 +115,7 @@
 .model-card {
   border: 1px solid var(--divider);
   background: var(--surface-1);
-  border-radius: 12px;
+  border-radius: var(--card-radius);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -190,7 +170,7 @@
 
 .model-active-card {
   border: 1px dashed var(--divider);
-  border-radius: 12px;
+  border-radius: var(--card-radius);
   padding: 10px;
   background: var(--surface-1);
   min-height: 90px;

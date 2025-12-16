@@ -23,6 +23,8 @@ class CharacterFile(BaseModel):
     greeting: str | None = None
     personality: str | None = None
     icon_path: str | None = None
+    mode: str | None = None
+    gender: str | None = None
 
 
 def _slugify(name: str) -> str:

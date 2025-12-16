@@ -21,6 +21,127 @@ body {
   touch-action: pan-y;
 }
 
+/* Shared primitives */
+
+:where(.btn) {
+  --btn-bg: var(--surface-1);
+  --btn-border: var(--input-border);
+  --btn-color: var(--text-main);
+  --btn-padding: 7px 12px;
+  --btn-radius: var(--radius-pill);
+  --btn-font-size: 0.88rem;
+  background: var(--btn-bg);
+  border: 1px solid var(--btn-border);
+  border-radius: var(--btn-radius);
+  color: var(--btn-color);
+  padding: var(--btn-padding);
+  font-weight: 600;
+  font-size: var(--btn-font-size);
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease,
+    color 0.12s ease, transform 0.06s ease;
+}
+
+:where(.btn):hover {
+  background: var(--btn-hover-bg, var(--accent-soft));
+  border-color: var(--btn-hover-border, var(--accent-soft-strong));
+}
+
+:where(.btn-primary) {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--text-on-accent);
+}
+
+:where(.btn-ghost) {
+  background: transparent;
+}
+
+:where(.btn-danger) {
+  background: #c0392b;
+  border-color: #c0392b;
+  color: #fff;
+}
+
+:where(.btn-danger):hover {
+  background: #e74c3c;
+  border-color: #e74c3c;
+}
+
+:where(.panel, .archive-panel, .world-panel, .model-panel, .nb-phone-layout) {
+  --panel-surface: var(--panel-bg);
+  --panel-border-color: var(--panel-border);
+  --panel-shadow-value: 0 8px 16px var(--surface-shadow);
+  background: var(--panel-surface);
+  border: 1px solid var(--panel-border-color);
+  border-radius: var(--panel-radius);
+  box-shadow: var(--panel-shadow-value);
+}
+
+:where(.archive-empty, .world-empty) {
+  border: 1px dashed var(--divider);
+  background: var(--surface-2);
+  color: var(--text-muted);
+  padding: 14px;
+  border-radius: var(--card-radius);
+  text-align: center;
+  font-size: 0.9rem;
+}
+
+:where(
+    .archive-input,
+    .archive-select,
+    .archive-rename-input,
+    .world-input,
+    .world-textarea,
+    .char-select,
+    .char-input,
+    .char-textarea,
+    .nb-style-input,
+    .nb-context-text,
+    .nb-inline-label input,
+    .chat-input,
+    .msg-edit-area
+  ) {
+  --input-padding: 8px 10px;
+  --input-radius: var(--radius-md);
+  --input-font-size: 0.95rem;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--text-main);
+  border-radius: var(--input-radius);
+  padding: var(--input-padding);
+  font-family: inherit;
+  font-size: var(--input-font-size);
+}
+
+:where(
+    .archive-input,
+    .archive-select,
+    .archive-rename-input,
+    .world-input,
+    .world-textarea,
+    .char-select,
+    .char-input,
+    .char-textarea,
+    .nb-style-input,
+    .nb-context-text,
+    .nb-inline-label input,
+    .chat-input,
+    .msg-edit-area
+  ):focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 1px var(--accent-glow);
+}
+
+:where(.pill, .archive-pill, .model-tag, .model-status-pill, .model-chip) {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: var(--radius-pill);
+}
+
 /* Layout */
 
 .app-shell {

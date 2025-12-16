@@ -27,8 +27,12 @@
   --header-grad-start: #0f1626;
   --header-grad-end: #0c1220;
 
+  --radius-sm: 10px;
   --radius-md: 24px;
+  --radius-lg: 30px;
   --radius-pill: 999px;
+  --panel-radius: 14px;
+  --card-radius: 12px;
 
   --sidebar-width: 56px;
 }

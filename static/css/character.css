@@ -64,11 +64,23 @@
 }
 
 .char-identity {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  grid-template-areas:
+    "header header"
+    "icon meta";
   gap: 18px;
-  align-items: stretch;
+  align-items: start;
+}
+
+.char-identity-header {
+  grid-area: header;
+  width: 100%;
+  margin-bottom: 4px;
 }
 
 .char-meta-stack {
+  grid-area: meta;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -133,6 +145,7 @@
 }
 
 .char-icon-field {
+  grid-area: icon;
   max-width: 220px;
   width: 100%;
   align-items: stretch;

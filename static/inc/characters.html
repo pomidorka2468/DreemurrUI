@@ -13,8 +13,11 @@
   </section>
 
   <section class="char-section char-identity two-col">
+    <div class="char-identity-header">
+      <label class="char-label">Character</label>
+    </div>
     <div class="char-field char-icon-field">
-      <label class="char-label" data-lang="char.icon">Character Icon</label>
+      <label class="char-label char-sr-only" data-lang="char.icon">Character Icon</label>
       <div class="char-icon-wrap">
         <div id="charIconPreview" class="char-icon-preview"></div>
         <div class="char-icon-menu" id="charIconMenu" role="dialog" aria-modal="false">
@@ -39,7 +42,7 @@
 
     <div class="char-field char-meta-stack">
       <div class="char-field char-name-field">
-        <label for="charName" class="char-label" data-lang="char.name">Character Name</label>
+        <label for="charName" class="char-label char-sr-only" data-lang="char.name">Character Name</label>
         <input
           id="charName"
           class="char-input"

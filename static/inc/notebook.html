@@ -1,21 +1,4 @@
 <div class="notebook-layout nb-phone-layout">
-  <div class="nb-phone-top">
-    <div class="nb-tab-bar" role="tablist" aria-label="Notebook sections">
-      <button class="nb-tab nb-tab-active" data-tab="generate" role="tab" aria-selected="true" data-lang="notebook.generate">
-        Generate
-      </button>
-      <button class="nb-tab" data-tab="save" role="tab" aria-selected="false" data-lang="notebook.save_load">
-        Save / Load
-      </button>
-      <button class="nb-tab" data-tab="context" role="tab" aria-selected="false" data-lang="notebook.context">
-        Context
-      </button>
-      <button class="nb-tab" data-tab="guide" role="tab" aria-selected="false" data-lang="notebook.guide">
-        Guide
-      </button>
-    </div>
-  </div>
-
   <div class="nb-phone-body">
     <div class="nb-editor-shell nb-phone-editor">
       <textarea
@@ -27,6 +10,8 @@
 
       <div class="nb-token-counter">
         <span id="nbTokenCount" data-lang="notebook.tokens">0 tokens</span>
+        <span aria-hidden="true"> · </span>
+        <span id="nbWordCount">0 words</span>
       </div>
     </div>
   </div>
@@ -41,9 +26,5 @@
     <button id="nbContinueBtn" class="nb-action-btn nb-action-primary" title="Continue" data-lang="notebook.continue">
       Generate
     </button>
-  </div>
-
-  <div class="status-bar">
-    <span id="nbStatus" data-lang="notebook.status.ready">Ready</span>
   </div>
 </div>

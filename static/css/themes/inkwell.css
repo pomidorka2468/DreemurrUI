@@ -16,6 +16,7 @@
   --accent-soft: rgba(98, 176, 255, 0.18);
   --accent-soft-strong: rgba(98, 176, 255, 0.34);
   --accent-glow: rgba(98, 176, 255, 0.55);
+  --char-toggle-icon-filter: brightness(1.35) saturate(1.1);
 
   --text-main: #d8e4ff;
   --text-muted: #8fa2c8;

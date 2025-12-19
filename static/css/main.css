@@ -209,15 +209,15 @@ body {
 }
 
 .mode-chat {
-  --icon-bg: rgba(255, 138, 92, 0.18);
-  --icon-filter: invert(71%) sepia(67%) saturate(596%) hue-rotate(334deg)
-    brightness(101%) contrast(103%);
+  --icon-bg: rgba(37, 99, 235, 0.2);
+  --icon-filter: invert(47%) sepia(72%) saturate(927%) hue-rotate(184deg)
+    brightness(92%) contrast(95%);
 }
 
 .mode-notebook {
-  --icon-bg: rgba(124, 58, 237, 0.16);
-  --icon-filter: invert(37%) sepia(92%) saturate(1167%) hue-rotate(239deg)
-    brightness(94%) contrast(103%);
+  --icon-bg: rgba(160, 99, 255, 0.18);
+  --icon-filter: invert(40%) sepia(71%) saturate(1135%) hue-rotate(242deg)
+    brightness(96%) contrast(101%);
 }
 
 .mode-model {
@@ -233,15 +233,15 @@ body {
 }
 
 .mode-archive {
-  --icon-bg: rgba(59, 130, 246, 0.16);
-  --icon-filter: invert(40%) sepia(88%) saturate(1440%) hue-rotate(197deg)
-    brightness(95%) contrast(96%);
+  --icon-bg: rgba(251, 191, 36, 0.2);
+  --icon-filter: invert(78%) sepia(73%) saturate(822%) hue-rotate(352deg)
+    brightness(95%) contrast(94%);
 }
 
 .mode-characters {
-  --icon-bg: rgba(245, 158, 11, 0.18);
-  --icon-filter: invert(72%) sepia(88%) saturate(566%) hue-rotate(352deg)
-    brightness(98%) contrast(101%);
+  --icon-bg: rgba(255, 159, 67, 0.2);
+  --icon-filter: invert(68%) sepia(62%) saturate(824%) hue-rotate(346deg)
+    brightness(101%) contrast(101%);
 }
 
 .mode-stats {
@@ -482,6 +482,88 @@ body {
   font-size: 0.75rem;
   color: var(--text-muted);
   padding-top: 2px;
+}
+
+.stats-grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  padding-top: 4px;
+}
+
+.stats-card {
+  border: 1px solid var(--panel-border);
+  border-radius: var(--panel-radius);
+  background: var(--surface-2);
+  overflow: hidden;
+  box-shadow: 0 2px 8px var(--surface-shadow);
+}
+
+.stats-card-header {
+  padding: 10px 14px; /* Tighter header */
+  background: var(--header-grad-end);
+  border-bottom: 1px solid var(--divider);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.card-icon-wrapper {
+  width: 30px;
+  height: 30px;
+  background: var(--surface-highlight);
+  border: 1px solid var(--surface-user-border);
+  border-radius: var(--radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.card-icon-svg {
+  width: 18px;
+  height: 18px;
+}
+
+.stats-card-content {
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.nb-inline-label label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  margin-bottom: 4px;
+  display: block;
+}
+
+/* Container for input + helper badge */
+.input-with-badge {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-badge .value-badge {
+  position: absolute;
+  right: 10px;
+  background: var(--surface-user);
+  color: var(--text-main);
+  border: 1px solid var(--surface-user-border);
+  padding: 2px 8px;
+  border-radius: var(--radius-pill);
+  font-size: 0.7rem;
+  pointer-events: none; /* Allows clicking input underneath */
+}
+
+/* Numeric Input Styling */
+input[type="number"].chat-input {
+  width: 100%;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--input-border);
+  padding-right: 70px; /* Space for the badge */
 }
 
 /* Responsive */

@@ -1,30 +1,62 @@
 <div class="chat-layout">
   <div class="chat-history">
-    <div class="msg system">
-      <div class="msg-body" data-lang="prefs.header">
-        Settings &amp; Info
-      </div>
-    </div>
+      <div class="stats-grid">
+        
+        <div class="stats-card">
+          <div class="stats-card-header">
+            <div class="card-icon-wrapper">
+              <img src="https://api.iconify.design/lucide:user-cog.svg?color=%23e38b3c" alt="Identity" class="card-icon-svg" />
+            </div>
+            <div class="stats-card-title" data-lang="prefs.identity">Identity & Limits</div>
+          </div>
+          
+          <div class="stats-card-content">
+            <div class="nb-inline-label">
+              <label for="statsUsername" data-lang="prefs.username">Username</label>
+              <input id="statsUsername" class="chat-input" type="text" placeholder="Your name" />
+            </div>
+            
+            <div class="nb-inline-label">
+              <label for="statsMaxTokens" data-lang="prefs.context">Max Context Tokens</label>
+              <input id="statsMaxTokens" class="chat-input" type="number" step="1024" placeholder="32768" />
+            </div>
 
-    <div class="msg assistant">
-      <div class="msg-label" data-lang="prefs.title">Preferences</div>
-      <div class="msg-body">
-        <label for="themeSelect" data-lang="prefs.theme">Theme</label>
-        <select id="themeSelect" class="chat-input" style="max-width: 260px; margin-top: 6px;">
-          <!-- options injected by JS -->
-        </select>
-        <div class="status-bar" style="margin-top: 6px;">
-          <span id="themeStatus" data-lang="prefs.theme.pick">Pick a theme to apply instantly.</span>
+            <div class="nb-inline-label">
+              <label for="statsTemperature" data-lang="prefs.temperature">Temperature</label>
+              <div class="input-with-badge">
+                <input id="statsTemperature" class="chat-input" type="number" min="0" max="2" step="0.1" placeholder="0.7" />
+                <span class="value-badge">0.0 - 2.0</span>
+              </div>
+            </div>
+          </div>
         </div>
-        <hr style="margin: 12px 0; border: none; border-top: 1px solid var(--divider);" />
-        <label for="languageSelect" data-lang="prefs.language">Language</label>
-        <select id="languageSelect" class="chat-input" style="max-width: 260px; margin-top: 6px;">
-          <!-- options injected by JS -->
-        </select>
-        <div class="status-bar" style="margin-top: 6px;">
-          <span id="languageStatus" data-lang="prefs.language.pick">Choose your preferred language.</span>
+
+        <div class="stats-card">
+          <div class="stats-card-header">
+            <div class="card-icon-wrapper">
+              <img src="https://api.iconify.design/lucide:server.svg?color=%23e38b3c" alt="Server" class="card-icon-svg" />
+            </div>
+            <div class="stats-card-title" data-lang="prefs.display">Display & Server</div>
+          </div>
+          
+          <div class="stats-card-content">
+            <div class="nb-inline-label">
+              <label for="themeSelect" data-lang="prefs.theme">Theme</label>
+              <select id="themeSelect" class="chat-input"></select>
+            </div>
+
+            <div class="nb-inline-label">
+              <label for="languageSelect" data-lang="prefs.language">Language</label>
+              <select id="languageSelect" class="chat-input"></select>
+            </div>
+
+            <div class="nb-inline-label">
+              <label for="statsServerLink" data-lang="prefs.server">Server link</label>
+              <input id="statsServerLink" class="chat-input" type="url" placeholder="http://localhost:1234" />
+            </div>
+          </div>
         </div>
+
       </div>
-    </div>
   </div>
 </div>

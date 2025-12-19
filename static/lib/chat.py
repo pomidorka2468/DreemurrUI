@@ -22,6 +22,7 @@ class ChatRequest(BaseModel):
     prompt: str
     model: str | None = None
     character_id: int | None = 1
+    mode: str | None = None
     language: str | None = None
     history: list[ChatMessage] | None = None
     archive_id: str | None = None
@@ -32,9 +33,43 @@ class ChatResponse(BaseModel):
     archive_id: str | None = None
 
 
+def build_system_prompt(character: dict | None) -> str | None:
+    if not character:
+        return None
+    mode = (character.get("mode") or "chat").lower()
+    name = character.get("name") or "Assistant"
+    greeting = character.get("greeting") or ""
+    persona = character.get("personality") or ""
+    gender = character.get("gender") or ""
+
+    if mode == "roleplay":
+        return (
+            "You are roleplaying as {name}. Stay fully in character using their voice, goals, and mannerisms.\n"
+            "Greeting: {greeting}\n"
+            "Persona: {persona}\n"
+            "Gender: {gender}\n"
+            "Keep replies as immersive dialogue with light action cues, using present tense and emotion-rich tone. "
+            "Use *italics* for actions and stage directions, and **bold** for strongly voiced text; do not escape or alter these markers. "
+            "Do not break character or explain that you are an assistant."
+        ).format(name=name, greeting=greeting, persona=persona, gender=gender)
+    elif mode == "chat":
+        return (
+            "You are {name}, a helpful conversational assistant.\n"
+            "Greeting: {greeting}\n"
+            "Persona: {persona}\n"
+            "Gender: {gender}\n"
+            "Respond clearly and concisely, stay on topic, and adapt tone to match the persona. "
+            "If the user provides a goal, focus on accomplishing it with numbered steps when useful. "
+            "Do not roleplay; be direct and practical."
+        ).format(name=name, greeting=greeting, persona=persona, gender=gender)
+
+
 @router.post("/chat", response_model=ChatResponse)
 async def chat(request: ChatRequest):
-    character = fetch_character(request.character_id or 1)
+    character = fetch_character(request.character_id or 1) or {}
+    if request.mode:
+        character["mode"] = request.mode
+    entry_type = "roleplay" if (character.get("mode") == "roleplay") else "chat"
     world_entries = list_enabled_world_entries()
     world_context = ""
     if world_entries:
@@ -42,22 +77,7 @@ async def chat(request: ChatRequest):
             f"- {item.get('name')}: {item.get('description') or ''}" for item in world_entries
         )
         world_context = "World context:\n" + joined
-    system_prompt = (
-        (
-            "You are roleplaying as {name}. Stay fully in character using their voice, goals, and mannerisms.\n"
-            "Greeting: {greeting}\n"
-            "Persona: {persona}\n"
-            "Keep replies as immersive dialogue with light action cues, using present tense and emotion-rich tone. "
-            "Use *italics* for actions and stage directions, and **bold** for spoken lines or strongly voiced text; do not escape or alter these markers. "
-            "Do not break character or explain that you are an assistant."
-        ).format(
-            name=character["name"],
-            greeting=character.get("greeting") or "",
-            persona=character.get("personality") or "",
-        )
-        if character
-        else None
-    )
+    system_prompt = build_system_prompt(character)
 
     # include recent history before the new user turn
     history_messages = []
@@ -100,7 +120,11 @@ async def chat(request: ChatRequest):
         {"role": "assistant", "content": reply_text},
     ]
     archive_id = save_chat_archive(
-        request.archive_id, full_history, request.model or DEFAULT_MODEL, request.character_id
+        request.archive_id,
+        full_history,
+        request.model or DEFAULT_MODEL,
+        request.character_id,
+        entry_type,
     )
 
     return ChatResponse(reply=reply_text, archive_id=archive_id)
@@ -108,7 +132,10 @@ async def chat(request: ChatRequest):
 
 @router.post("/chat/stream")
 async def chat_stream(request: ChatRequest):
-    character = fetch_character(request.character_id or 1)
+    character = fetch_character(request.character_id or 1) or {}
+    if request.mode:
+        character["mode"] = request.mode
+    entry_type = "roleplay" if (character.get("mode") == "roleplay") else "chat"
     world_entries = list_enabled_world_entries()
     world_context = ""
     if world_entries:
@@ -116,22 +143,7 @@ async def chat_stream(request: ChatRequest):
             f"- {item.get('name')}: {item.get('description') or ''}" for item in world_entries
         )
         world_context = "World context:\n" + joined
-    system_prompt = (
-        (
-            "You are roleplaying as {name}. Stay fully in character using their voice, goals, and mannerisms.\n"
-            "Greeting: {greeting}\n"
-            "Persona: {persona}\n"
-            "Keep replies as immersive dialogue with light action cues, using present tense and emotion-rich tone. "
-            "Use *italics* for actions and stage directions, and **bold** for spoken lines or strongly voiced text; do not escape or alter these markers. "
-            "Do not break character or explain that you are an assistant."
-        ).format(
-            name=character["name"],
-            greeting=character.get("greeting") or "",
-            persona=character.get("personality") or "",
-        )
-        if character
-        else None
-    )
+    system_prompt = build_system_prompt(character)
 
     # include recent history before the new user turn
     history_messages = []
@@ -189,6 +201,12 @@ async def chat_stream(request: ChatRequest):
             {"role": "user", "content": request.prompt},
             {"role": "assistant", "content": assistant_buffer},
         ]
-        save_chat_archive(request.archive_id, full_history, request.model or DEFAULT_MODEL, request.character_id)
+        save_chat_archive(
+            request.archive_id,
+            full_history,
+            request.model or DEFAULT_MODEL,
+            request.character_id,
+            entry_type,
+        )
 
     return StreamingResponse(event_generator(), media_type="text/event-stream")

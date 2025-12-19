@@ -1,7 +1,7 @@
 const ARCHIVE_TYPES = {
-  chat: { labelKey: "archive.type.chat", icon: "/static/icons/chat.svg", className: "chat", tint: "#3b82f6" },
-  story: { labelKey: "archive.type.story", icon: "/static/icons/feather.svg", className: "story", tint: "#22c55e" },
-  roleplay: { labelKey: "archive.type.rp", icon: "/static/icons/roleplay.svg", className: "roleplay", tint: "#f59e0b" },
+  chat: { labelKey: "archive.type.chat", icon: "/static/icons/chat.svg", className: "chat", tint: "#2563eb" },
+  story: { labelKey: "archive.type.story", icon: "/static/icons/feather.svg", className: "story", tint: "#7c3aed" },
+  roleplay: { labelKey: "archive.type.rp", icon: "/static/icons/roleplay.svg", className: "roleplay", tint: "#e83b3b" },
 };
 
 (function () {
@@ -131,7 +131,9 @@ const ARCHIVE_TYPES = {
           setTimeout(() => input.focus(), 0);
         } else {
           const nameSpan = document.createElement("span");
-          nameSpan.textContent = item.name || t("archive.untitled", "Untitled");
+          const rawName = item.name || t("archive.untitled", "Untitled");
+          const limit = 24;
+          nameSpan.textContent = rawName.length > limit ? rawName.slice(0, limit) + "…" : rawName;
           title.appendChild(nameSpan);
           if (item.id === activeId) {
             const renameInline = document.createElement("button");
@@ -160,8 +162,9 @@ const ARCHIVE_TYPES = {
         pill.appendChild(pillText);
 
         const time = document.createElement("span");
-        const d = new Date(item.updated_at || Date.now());
-        time.textContent = d.toLocaleString();
+        let ts = item.updated_at || Date.now();
+        if (ts < 1_000_000_000_000) ts = ts * 1000;
+        time.textContent = new Date(ts).toLocaleString();
 
         meta.appendChild(pill);
         meta.appendChild(time);
@@ -215,22 +218,37 @@ const ARCHIVE_TYPES = {
     restoreBtn?.addEventListener("click", () => {
       if (!activeEntry) return;
       try {
-        const payload = {
-          model: activeEntry.model,
-          character_id: activeEntry.character_id,
-          messages: activeEntry.messages || [],
-          archive_id: activeEntry.id,
-        };
-        localStorage.setItem("dreamui-restore-chat", JSON.stringify(payload));
-        if (activeEntry.model) {
-          localStorage.setItem("dreamui-active-model", activeEntry.model);
+        if (activeEntry.type === "story") {
+          const payload = {
+            text: activeEntry.text || activeEntry.preview || "",
+            model: activeEntry.model,
+            archive_id: activeEntry.id,
+          };
+          localStorage.setItem("dreamui-restore-notebook", JSON.stringify(payload));
+          if (activeEntry.model) {
+            localStorage.setItem("dreamui-active-model", activeEntry.model);
+          }
+          setStatus("archive.status.restored", "Ready to restore in notebook mode.");
+          const nbBtn = document.querySelector('.mode-icon-btn[data-mode-id="notebook"]');
+          nbBtn?.click();
+        } else {
+          const payload = {
+            model: activeEntry.model,
+            character_id: activeEntry.character_id,
+            messages: activeEntry.messages || [],
+            archive_id: activeEntry.id,
+          };
+          localStorage.setItem("dreamui-restore-chat", JSON.stringify(payload));
+          if (activeEntry.model) {
+            localStorage.setItem("dreamui-active-model", activeEntry.model);
+          }
+          if (activeEntry.character_id) {
+            localStorage.setItem("dreamui-active-character", String(activeEntry.character_id));
+          }
+          setStatus("archive.status.restored", "Ready to restore in chat mode.");
+          const chatBtn = document.querySelector('.mode-icon-btn[data-mode-id="chat"]');
+          chatBtn?.click();
         }
-        if (activeEntry.character_id) {
-          localStorage.setItem("dreamui-active-character", String(activeEntry.character_id));
-        }
-        setStatus("archive.status.restored", "Ready to restore in chat mode.");
-        const chatBtn = document.querySelector('.mode-icon-btn[data-mode-id="chat"]');
-        chatBtn?.click();
       } catch (err) {
         console.error("Failed to queue restore", err);
       }

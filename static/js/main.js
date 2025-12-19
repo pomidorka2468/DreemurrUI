@@ -522,6 +522,8 @@ function initChatMode() {
   const promptEl = document.getElementById("prompt");
   const sendBtn = document.getElementById("sendBtn");
   const statusText = document.getElementById("status-text");
+  const chatNavBtn = document.querySelector('.mode-icon-btn[data-mode-id="chat"]');
+  const chatNavImg = chatNavBtn?.querySelector("img");
   const storedId = parseInt(localStorage.getItem(ACTIVE_CHAR_KEY) || "1", 10);
   const currentCharacterId = Number.isFinite(storedId) ? storedId : 1;
   const archiveKey = `dreamui-chat-archive-${currentCharacterId}`;
@@ -535,7 +537,35 @@ function initChatMode() {
     icon: "/static/icons/chat.svg",
     greeting: "Welcome to DreamUI.",
     personality: "",
+    mode: "chat",
   };
+
+  function setChatModeIcon(mode) {
+    const resolved = mode === "roleplay" ? "roleplay" : "chat";
+    if (chatNavImg) {
+      chatNavImg.src =
+        resolved === "roleplay" ? "/static/icons/roleplay.svg" : "/static/icons/chat.svg";
+      chatNavImg.alt = resolved === "roleplay" ? "Roleplay" : "Chat";
+    }
+    if (chatNavBtn) {
+      chatNavBtn.title =
+        resolved === "roleplay"
+          ? t("mode.chat.roleplay_title", "Roleplay Mode")
+          : t("mode.chat.title", "Chat Mode");
+      chatNavBtn.style.setProperty(
+        "--icon-bg",
+        resolved === "roleplay" ? "rgba(232, 59, 59, 0.18)" : "rgba(37, 99, 235, 0.2)"
+      );
+      chatNavBtn.style.setProperty(
+        "--icon-filter",
+        resolved === "roleplay"
+          ? "invert(24%) sepia(91%) saturate(2171%) hue-rotate(339deg) brightness(96%) contrast(105%)"
+          : "invert(47%) sepia(72%) saturate(927%) hue-rotate(184deg) brightness(92%) contrast(95%)"
+      );
+    }
+  }
+
+  setChatModeIcon(currentCharacter.mode);
 
   if (!chatForm) return;
 
@@ -652,6 +682,7 @@ function initChatMode() {
     const payload = {
       prompt,
       character_id: parseInt(currentCharacter.id, 10) || 1,
+      mode: currentCharacter.mode || "chat",
       history: (historyTurns || []).map((turn) => ({
         role: turn.role,
         content: turn.content,
@@ -1029,13 +1060,13 @@ function initChatMode() {
     const storedId = localStorage.getItem(ACTIVE_CHAR_KEY);
     const parsedId = parseInt(storedId || "1", 10);
     const targetId = Number.isFinite(parsedId) ? parsedId : 1;
-      const hadHistory = conversation.length > 0;
-      let historyRendered = false;
-      try {
-        const res = await fetch(`/characters/${targetId}`, {
-          cache: "no-cache",
-        });
-        if (res.ok) {
+    const hadHistory = conversation.length > 0;
+    let historyRendered = false;
+    try {
+      const res = await fetch(`/characters/${targetId}`, {
+        cache: "no-cache",
+      });
+      if (res.ok) {
         const data = await res.json();
         currentCharacter = {
           id: data.id,
@@ -1043,7 +1074,9 @@ function initChatMode() {
           icon: data.icon_path || data.icon || "/static/icons/chat.svg",
           greeting: data.greeting || "Ready.",
           personality: data.personality || "",
+          mode: data.mode === "roleplay" ? "roleplay" : "chat",
         };
+        setChatModeIcon(currentCharacter.mode);
         if (currentCharacter.greeting) {
           const greetingText = currentCharacter.greeting;
           if (!hadHistory) {

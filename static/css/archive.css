@@ -91,6 +91,7 @@
   background: var(--surface-2);
   cursor: pointer;
   transition: background 0.12s ease, border-color 0.12s ease, transform 0.06s ease;
+  max-width: 100%;
 }
 
 .archive-item:hover {
@@ -116,18 +117,30 @@
   line-height: 1.4;
   max-height: 3.2em;
   overflow: hidden;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  word-break: break-word;
 }
 
 .archive-item-title {
   font-weight: 600;
   font-size: 0.96rem;
   color: var(--text-main);
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  max-width: 100%;
+  min-width: 0;
+}
+
+.archive-item-title span:first-child {
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .archive-rename-input {
@@ -192,18 +205,18 @@
 }
 
 .archive-pill.chat {
-  background: rgba(37, 99, 235, 0.12);
+  background: rgba(37, 99, 235, 0.18);
   color: #1d4ed8;
 }
 
 .archive-pill.story {
-  background: rgba(16, 185, 129, 0.12);
-  color: #0f9d68;
+  background: rgba(160, 99, 255, 0.16);
+  color: #6d28d9;
 }
 
 .archive-pill.roleplay {
-  background: rgba(234, 179, 8, 0.18);
-  color: #b45309;
+  background: rgba(232, 59, 59, 0.18);
+  color: #c02626;
 }
 
 .archive-detail-panel {

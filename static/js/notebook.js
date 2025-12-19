@@ -25,6 +25,9 @@ const NB_MODEL_STORAGE_KEY = "dreamui-active-model";
     const revertBtn = document.getElementById("nbRevertBtn");
     const stopBtn = document.getElementById("nbStopBtn");
     const contBtn = document.getElementById("nbContinueBtn");
+    const actionsBar = document.querySelector(".nb-phone-actions");
+    let isInputFocused = false;
+    let blurTimeout = null;
 
     const tabs = layout.querySelectorAll(".nb-tab");
     const panels = layout.querySelectorAll(".nb-subpanel");
@@ -52,9 +55,66 @@ const NB_MODEL_STORAGE_KEY = "dreamui-active-model";
     let lastPayload = null; // payload used for last action
     let currentStreamController = null;
     let streaming = false;
+    let floating = false;
+
+    function setFloatingActions(active, offsetPx) {
+      if (!actionsBar) return;
+      floating = active;
+      actionsBar.classList.toggle("nb-actions-floating", active);
+      if (!active) {
+        actionsBar.style.removeProperty("--keyboard-offset");
+        return;
+      }
+      if (typeof offsetPx === "number") {
+        actionsBar.style.setProperty("--keyboard-offset", `${offsetPx}px`);
+      }
+    }
+
+    function updateKeyboardOffset() {
+      if (!actionsBar || !window.visualViewport) return;
+      const vv = window.visualViewport;
+      const keyboardHeight = Math.max(0, window.innerHeight - vv.height - vv.offsetTop);
+      if (!isInputFocused || keyboardHeight < 40) {
+        setFloatingActions(false);
+        return;
+      }
+      setFloatingActions(true, keyboardHeight);
+    }
 
     function setStatus(msg) {
       if (statusEl) statusEl.textContent = msg;
+    }
+
+    function consumeRestoreQueue() {
+      try {
+        const raw = localStorage.getItem("dreamui-restore-notebook");
+        if (!raw) return;
+        localStorage.removeItem("dreamui-restore-notebook");
+        const data = JSON.parse(raw);
+        if (textEl && data?.text) {
+          textEl.value = data.text;
+          updateTokens();
+        }
+        if (data?.model) {
+          localStorage.setItem(NB_MODEL_STORAGE_KEY, data.model);
+        }
+        setStatus("Restored story.");
+      } catch (err) {
+        console.error("Failed to restore notebook entry", err);
+      }
+    }
+
+    async function saveStoryToArchive(text, model) {
+      if (!text?.trim()) return;
+      try {
+        await fetch("/archive/story", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, model }),
+        });
+      } catch (err) {
+        console.warn("[notebook] archive save failed", err);
+      }
     }
 
     function updateTokens() {
@@ -62,6 +122,11 @@ const NB_MODEL_STORAGE_KEY = "dreamui-active-model";
       const chars = textEl.value.length;
       const approxTokens = Math.max(0, Math.round(chars / 4)); // rough estimate
       tokenCountEl.textContent = `${approxTokens} tokens`;
+      const wordEl = document.getElementById("nbWordCount");
+      if (wordEl) {
+        const words = (textEl.value.match(/\b\w+\b/g) || []).length;
+        wordEl.textContent = `${words} ${words === 1 ? "word" : "words"}`;
+      }
     }
 
     // --- Tab switching ---
@@ -179,6 +244,7 @@ const NB_MODEL_STORAGE_KEY = "dreamui-active-model";
 
       try {
         await streamContinue(payload, fullText);
+        await saveStoryToArchive(textEl.value, payload.model);
         setStatus("Ready");
       } catch (err) {
         if (err.name === "AbortError") {
@@ -260,6 +326,25 @@ const NB_MODEL_STORAGE_KEY = "dreamui-active-model";
     // --- Bind events ---
 
     textEl?.addEventListener("input", updateTokens);
+    textEl?.addEventListener("focus", () => {
+      isInputFocused = true;
+      if (blurTimeout) {
+        clearTimeout(blurTimeout);
+        blurTimeout = null;
+      }
+      updateKeyboardOffset();
+    });
+    textEl?.addEventListener("blur", () => {
+      isInputFocused = false;
+      blurTimeout = setTimeout(() => {
+        setFloatingActions(false);
+      }, 220);
+    });
+
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener("resize", updateKeyboardOffset);
+      window.visualViewport.addEventListener("scroll", updateKeyboardOffset);
+    }
 
     contBtn?.addEventListener("click", (e) => {
       e.preventDefault();
@@ -288,6 +373,7 @@ const NB_MODEL_STORAGE_KEY = "dreamui-active-model";
 
     // initial
     updateTokens();
+    consumeRestoreQueue();
     activateTab("generate");
     setStatus("Ready");
   };

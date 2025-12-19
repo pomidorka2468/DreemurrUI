@@ -217,13 +217,13 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
             : (typeof window.t === "function" ? window.t("mode.chat.title", "Chat Mode") : "Chat Mode");
         chatNavBtn.style.setProperty(
           "--icon-bg",
-          resolved === "roleplay" ? "rgba(232, 59, 59, 0.18)" : "rgba(124, 78, 219, 0.18)"
+          resolved === "roleplay" ? "rgba(232, 59, 59, 0.18)" : "rgba(37, 99, 235, 0.2)"
         );
         chatNavBtn.style.setProperty(
           "--icon-filter",
           resolved === "roleplay"
             ? "invert(24%) sepia(91%) saturate(2171%) hue-rotate(339deg) brightness(96%) contrast(105%)"
-            : "invert(37%) sepia(92%) saturate(1167%) hue-rotate(239deg) brightness(94%) contrast(103%)"
+            : "invert(47%) sepia(72%) saturate(927%) hue-rotate(184deg) brightness(92%) contrast(95%)"
         );
       }
     }

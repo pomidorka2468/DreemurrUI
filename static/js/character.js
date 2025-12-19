@@ -69,7 +69,7 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
       greeting: "Hello {username}",
       personality: "Professional, subtle, creative writing.",
       mode: "chat",
-      gender: "he",
+      gender: "male",
     },
   ];
 
@@ -93,6 +93,8 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
     const modeToggleEl = document.getElementById("charModeToggle");
     const genderToggleEl = document.getElementById("charGenderToggle");
     const genderChoiceEls = Array.from(document.querySelectorAll(".char-gender-choice"));
+    const chatNavBtn = document.querySelector('.mode-icon-btn[data-mode-id="chat"]');
+    const chatNavImg = chatNavBtn?.querySelector("img");
 
     if (!selectEl || !nameEl || !greetEl || !personalityEl) return;
 
@@ -120,12 +122,8 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
           const local = localCache.find((l) => String(l.id) === String(c.id));
           const mode =
             local?.mode === "roleplay" || c.mode === "roleplay" ? "roleplay" : "chat";
-          const gender =
-            local?.gender === "she" || c.gender === "she"
-              ? "she"
-              : local?.gender === "he" || c.gender === "he"
-              ? "he"
-              : "he";
+          const genderSource = local?.gender || c.gender;
+          const gender = genderSource === "female" || genderSource === "she" ? "female" : "male";
           return { ...c, icon, mode, gender };
         });
         const localOnly = localCache.filter(
@@ -138,7 +136,7 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
           icon: c.icon || c.icon_path || DEFAULT_ICON,
           icon_path: c.icon || c.icon_path || DEFAULT_ICON,
           mode: c.mode === "roleplay" ? "roleplay" : "chat",
-          gender: c.gender === "she" ? "she" : "he",
+          gender: c.gender === "female" || c.gender === "she" ? "female" : "male",
         }));
       }
       if (!characters.length) {
@@ -205,6 +203,31 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
       return mode === "roleplay" ? "roleplay" : "chat";
     }
 
+    function setChatModeIcon(mode) {
+      const resolved = mode === "roleplay" ? "roleplay" : "chat";
+      if (chatNavImg) {
+        chatNavImg.src =
+          resolved === "roleplay" ? "/static/icons/roleplay.svg" : "/static/icons/chat.svg";
+        chatNavImg.alt = resolved === "roleplay" ? "Roleplay" : "Chat";
+      }
+      if (chatNavBtn) {
+        chatNavBtn.title =
+          resolved === "roleplay"
+            ? (typeof window.t === "function" ? window.t("mode.chat.roleplay_title", "Roleplay Mode") : "Roleplay Mode")
+            : (typeof window.t === "function" ? window.t("mode.chat.title", "Chat Mode") : "Chat Mode");
+        chatNavBtn.style.setProperty(
+          "--icon-bg",
+          resolved === "roleplay" ? "rgba(232, 59, 59, 0.18)" : "rgba(124, 78, 219, 0.18)"
+        );
+        chatNavBtn.style.setProperty(
+          "--icon-filter",
+          resolved === "roleplay"
+            ? "invert(24%) sepia(91%) saturate(2171%) hue-rotate(339deg) brightness(96%) contrast(105%)"
+            : "invert(37%) sepia(92%) saturate(1167%) hue-rotate(239deg) brightness(94%) contrast(103%)"
+        );
+      }
+    }
+
     function setSelectedMode(mode) {
       if (!modeToggleEl) return;
       const safe = mode === "roleplay" ? "roleplay" : "chat";
@@ -219,15 +242,15 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
     }
 
     function getSelectedGender() {
-      const val = genderToggleEl?.dataset.gender;
-      return val === "she" ? "she" : "he";
+      const val = (genderToggleEl?.dataset.gender || "").toLowerCase();
+      return val === "female" ? "female" : "male";
     }
 
     function setSelectedGender(gender) {
       if (!genderToggleEl) return;
-      const safe = gender === "she" ? "she" : "he";
+      const safe = gender === "female" ? "female" : "male";
       genderToggleEl.dataset.gender = safe;
-      genderToggleEl.setAttribute("aria-label", safe === "he" ? "He" : "She");
+      genderToggleEl.setAttribute("aria-label", safe === "male" ? "Male" : "Female");
       genderChoiceEls.forEach((btn) => {
         const active = btn.dataset.gender === safe;
         btn.setAttribute("aria-checked", active ? "true" : "false");
@@ -269,7 +292,7 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
         iconMenuEl.classList.remove("open");
       }
       setSelectedMode(current.mode || "chat");
-      setSelectedGender(current.gender || "he");
+      setSelectedGender(current.gender || "male");
       updateTokenCount();
       console.info(LOG_PREFIX, "Loaded character", current);
     }
@@ -285,7 +308,6 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
         characters[idx] = payload;
       }
       console.debug(LOG_PREFIX, "Upsert current", payload);
-      saveLocalCache(characters);
       renderSelect();
       selectEl.value = String(currentId);
     }
@@ -307,7 +329,6 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
         const btn = e.target.closest(".char-mode-choice");
         if (!btn || !modeToggleEl.contains(btn)) return;
         setSelectedMode(btn.dataset.mode);
-        upsertCurrent();
       });
     }
 
@@ -316,7 +337,6 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
         const btn = e.target.closest(".char-gender-choice");
         if (!btn || !genderToggleEl.contains(btn)) return;
         setSelectedGender(btn.dataset.gender);
-        upsertCurrent();
       });
     }
 
@@ -418,6 +438,7 @@ const CHAR_ACTIVE_STORAGE_KEY = "dreamui-active-character";
           setTimeout(() => (loadBtn.textContent = "Load"), 800);
           return;
         }
+        setChatModeIcon(getSelectedMode());
         localStorage.setItem(CHAR_ACTIVE_STORAGE_KEY, String(numericId));
         if (typeof window.savePreferences === "function") {
           window.savePreferences({ character_id: numericId });

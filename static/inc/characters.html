@@ -8,7 +8,7 @@
       <button class="btn char-ghost-btn" id="charSaveBtn" title="Save character" data-lang="char.save" data-lang-title="char.save_title">Save</button>
       <button class="btn char-ghost-btn" id="charLoadBtn" title="Load character for chat" data-lang="char.load" data-lang-title="char.load_title">Load</button>
       <button class="btn char-ghost-btn" id="charDeleteBtn" title="Delete character" data-lang="char.delete" data-lang-title="char.delete_title">🗑</button>
-      <button class="btn char-ghost-btn" id="charNewBtn" title="Create new character" data-lang-title="char.new_title" data-lang="char.new">Create new character</button>
+      <button class="btn char-ghost-btn" id="charNewBtn" title="Create new character" data-lang-title="char.new_title" data-lang="char.new">New</button>
     </div>
   </section>
 
@@ -57,24 +57,22 @@
           <label class="char-label char-sr-only" for="charModeChat" data-lang="char.mode">Character Mode</label>
           <div class="char-mode-toggle" id="charModeToggle" data-mode="chat" role="radiogroup" aria-label="Character mode">
             <button type="button" class="char-mode-choice" data-mode="chat" role="radio" aria-checked="true">
-              <span class="char-mode-dot chat-dot"></span>
-              <span class="char-mode-text">Chat</span>
+              <img src="/static/icons/chat.svg" alt="Chat" class="char-mode-icon" />
             </button>
             <button type="button" class="char-mode-choice" data-mode="roleplay" role="radio" aria-checked="false">
-              <span class="char-mode-dot roleplay-dot"></span>
-              <span class="char-mode-text">Roleplay</span>
+              <img src="/static/icons/roleplay.svg" alt="Roleplay" class="char-mode-icon" />
             </button>
           </div>
         </div>
 
         <div class="char-field char-gender-field">
           <label class="char-label char-sr-only" data-lang="char.gender">Gender</label>
-          <div class="char-gender-toggle" id="charGenderToggle" data-gender="he" role="radiogroup" aria-label="Gender">
-            <button type="button" class="char-gender-choice" data-gender="he" role="radio" aria-checked="true">
-              <span class="char-mode-text">He</span>
+          <div class="char-gender-toggle" id="charGenderToggle" data-gender="male" role="radiogroup" aria-label="Gender">
+            <button type="button" class="char-gender-choice" data-gender="male" role="radio" aria-checked="true">
+              <img src="/static/icons/male.svg" alt="Male" class="char-gender-icon" />
             </button>
-            <button type="button" class="char-gender-choice" data-gender="she" role="radio" aria-checked="false">
-              <span class="char-mode-text">She</span>
+            <button type="button" class="char-gender-choice" data-gender="female" role="radio" aria-checked="false">
+              <img src="/static/icons/female.svg" alt="Female" class="char-gender-icon" />
             </button>
           </div>
         </div>
